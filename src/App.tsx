@@ -14,9 +14,7 @@ import {
   Layers, 
   Sparkles, 
   Bookmark, 
-  RotateCcw,
-  ExternalLink,
-  Github
+  RotateCcw
 } from 'lucide-react';
 import { multiLanguageSnippets } from './data/snippetsData';
 import { Language, Category, Difficulty } from './types';
@@ -29,9 +27,11 @@ import { TermuxStudio } from './components/TermuxStudio';
 import { SecurityInspector } from './components/SecurityInspector';
 import { LanguagesEncyclopedia } from './components/LanguagesEncyclopedia';
 import { AIAssistant } from './components/AIAssistant';
-import { ProjectExporter } from './components/ProjectExporter';
+import { CyberLab } from './components/CyberLab';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 
-export default function App() {
+function AppContent() {
+  const { isAr } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabType>('snippets');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedLanguage, setSelectedLanguage] = useState<Language | 'all'>('all');
@@ -62,28 +62,28 @@ export default function App() {
     );
   };
 
-  const languagesList: { id: Language | 'all'; label: string }[] = [
-    { id: 'all', label: 'كافة اللغات' },
-    { id: 'python', label: 'Python' },
-    { id: 'bash', label: 'Bash / Linux' },
-    { id: 'termux', label: 'Termux' },
-    { id: 'javascript', label: 'JavaScript' },
-    { id: 'typescript', label: 'TypeScript' },
-    { id: 'go', label: 'Go' },
-    { id: 'rust', label: 'Rust' },
-    { id: 'sql', label: 'SQL' },
-    { id: 'cpp', label: 'C / C++' },
-    { id: 'docker', label: 'Docker' },
+  const languagesList: { id: Language | 'all'; labelAr: string; labelEn: string }[] = [
+    { id: 'all', labelAr: 'كافة اللغات', labelEn: 'All Languages' },
+    { id: 'python', labelAr: 'Python', labelEn: 'Python' },
+    { id: 'bash', labelAr: 'Bash / Linux', labelEn: 'Bash / Linux' },
+    { id: 'termux', labelAr: 'Termux', labelEn: 'Termux' },
+    { id: 'javascript', labelAr: 'JavaScript', labelEn: 'JavaScript' },
+    { id: 'typescript', labelAr: 'TypeScript', labelEn: 'TypeScript' },
+    { id: 'go', labelAr: 'Go', labelEn: 'Go' },
+    { id: 'rust', labelAr: 'Rust', labelEn: 'Rust' },
+    { id: 'sql', labelAr: 'SQL', labelEn: 'SQL' },
+    { id: 'cpp', labelAr: 'C / C++', labelEn: 'C / C++' },
+    { id: 'docker', labelAr: 'Docker', labelEn: 'Docker' },
   ];
 
-  const categoriesList: { id: Category | 'all'; label: string }[] = [
-    { id: 'all', label: 'كافة التصنيفات' },
-    { id: 'security', label: '🛡️ أمن وتشفير' },
-    { id: 'termux_tools', label: '📱 أدوات Termux' },
-    { id: 'networking', label: '🌐 شبكات واتصالات' },
-    { id: 'system_admin', label: '⚙️ إدارة الأنظمة' },
-    { id: 'web_dev', label: '💻 تطوير الويب' },
-    { id: 'database', label: '🗄️ قواعد البيانات' },
+  const categoriesList: { id: Category | 'all'; labelAr: string; labelEn: string }[] = [
+    { id: 'all', labelAr: 'كافة التصنيفات', labelEn: 'All Categories' },
+    { id: 'security', labelAr: '🛡️ أمن وتشفير', labelEn: '🛡️ Security & Crypto' },
+    { id: 'termux_tools', labelAr: '📱 أدوات Termux', labelEn: '📱 Termux Tools' },
+    { id: 'networking', labelAr: '🌐 شبكات واتصالات', labelEn: '🌐 Networking' },
+    { id: 'system_admin', labelAr: '⚙️ إدارة الأنظمة', labelEn: '⚙️ System Admin' },
+    { id: 'web_dev', labelAr: '💻 تطوير الويب', labelEn: '💻 Web Dev' },
+    { id: 'database', labelAr: '🗄️ قواعد البيانات', labelEn: '🗄️ Databases' },
   ];
 
   // Filtered snippets
@@ -104,32 +104,21 @@ export default function App() {
         return false;
       }
 
-      // Difficulty filter
-      if (selectedDifficulty !== 'all' && item.difficulty !== selectedDifficulty) {
-        return false;
-      }
-
-      // Search query
+      // Search query filter (search across title, description, code, tags)
       if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
+        const q = searchQuery.toLowerCase().trim();
         const matchesTitle = item.title.toLowerCase().includes(q);
-        const matchesCode = item.code.toLowerCase().includes(q);
         const matchesDesc = item.description.toLowerCase().includes(q);
+        const matchesCode = item.code.toLowerCase().includes(q);
         const matchesTags = item.tags.some((t) => t.toLowerCase().includes(q));
         const matchesLang = item.language.toLowerCase().includes(q);
-        return matchesTitle || matchesCode || matchesDesc || matchesTags || matchesLang;
+
+        return matchesTitle || matchesDesc || matchesCode || matchesTags || matchesLang;
       }
 
       return true;
     });
-  }, [
-    showFavoritesOnly, 
-    favoriteIds, 
-    selectedLanguage, 
-    selectedCategory, 
-    selectedDifficulty, 
-    searchQuery
-  ]);
+  }, [selectedLanguage, selectedCategory, searchQuery, showFavoritesOnly, favoriteIds]);
 
   const resetFilters = () => {
     setSelectedLanguage('all');
@@ -140,51 +129,58 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between">
-      <div>
-        {/* Navigation & Header */}
-        <Header
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          favoritesCount={favoriteIds.length}
-          showFavoritesOnly={showFavoritesOnly}
-          setShowFavoritesOnly={setShowFavoritesOnly}
-        />
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* Top Header */}
+      <Header
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        favoritesCount={favoriteIds.length}
+        showFavoritesOnly={showFavoritesOnly}
+        setShowFavoritesOnly={setShowFavoritesOnly}
+      />
 
-        {/* Global Ethical & Defensive Banner */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-          <EthicalBanner />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+        {/* Ethical disclaimer banner */}
+        <EthicalBanner />
 
-          {/* TAB 1: SNIPPETS VAULT */}
+        {/* Main Tabs Content */}
+        <main className="space-y-6">
+          {/* TAB 1: CODE SNIPPETS BROWSER */}
           {activeTab === 'snippets' && (
             <div className="space-y-6">
-              {/* Filter controls bar */}
-              <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              {/* Filter Controls Bar */}
+              <div className="bg-slate-900/90 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
                   <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-cyan-400" />
-                    <h2 className="text-sm font-bold text-white">تصفية مكتبة الأكواد</h2>
-                    <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full border border-slate-700">
-                      {filteredSnippets.length} كود ونمط متوفر
+                    <h2 className="text-sm font-bold text-white">
+                      {isAr ? 'تصفية واستكشاف الأكواد' : 'Filter & Explore Snippets'}
+                    </h2>
+                    <span className="text-xs text-slate-400 bg-slate-800 px-2 py-0.5 rounded-full font-mono">
+                      {filteredSnippets.length} {isAr ? 'كود متاح' : 'Available'}
                     </span>
                   </div>
 
-                  {(selectedLanguage !== 'all' || selectedCategory !== 'all' || selectedDifficulty !== 'all' || searchQuery || showFavoritesOnly) && (
-                    <button
-                      onClick={resetFilters}
-                      className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1.5 self-start sm:self-auto transition-colors"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>إعادة تعيين الفلاتر</span>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {(selectedLanguage !== 'all' || selectedCategory !== 'all' || searchQuery || showFavoritesOnly) && (
+                      <button
+                        onClick={resetFilters}
+                        className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-500/30 px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>{isAr ? 'إعادة ضبط الفلاتر' : 'Reset Filters'}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Languages pills */}
                 <div>
-                  <span className="block text-[11px] text-slate-400 font-semibold mb-2">اللغة البرمجية:</span>
+                  <span className="block text-[11px] text-slate-400 font-semibold mb-2">
+                    {isAr ? 'لغة البرمجة والبيئة:' : 'Programming Language:'}
+                  </span>
                   <div className="flex flex-wrap gap-1.5">
                     {languagesList.map((lang) => (
                       <button
@@ -197,7 +193,7 @@ export default function App() {
                             : 'bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
                         }`}
                       >
-                        {lang.label}
+                        {isAr ? lang.labelAr : lang.labelEn}
                       </button>
                     ))}
                   </div>
@@ -205,7 +201,9 @@ export default function App() {
 
                 {/* Categories pills */}
                 <div>
-                  <span className="block text-[11px] text-slate-400 font-semibold mb-2">التصنيف الوظيفي:</span>
+                  <span className="block text-[11px] text-slate-400 font-semibold mb-2">
+                    {isAr ? 'التصنيف الوظيفي:' : 'Functional Category:'}
+                  </span>
                   <div className="flex flex-wrap gap-1.5">
                     {categoriesList.map((cat) => (
                       <button
@@ -218,7 +216,7 @@ export default function App() {
                             : 'bg-slate-950/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800'
                         }`}
                       >
-                        {cat.label}
+                        {isAr ? cat.labelAr : cat.labelEn}
                       </button>
                     ))}
                   </div>
@@ -242,15 +240,17 @@ export default function App() {
                   <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto text-slate-500">
                     <Code2 className="w-6 h-6" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-300">لا توجد أكواد مطابقة للفلاتر المحددة</h3>
+                  <h3 className="text-base font-bold text-slate-300">
+                    {isAr ? 'لا توجد أكواد مطابقة للفلاتر المحددة' : 'No snippets match your filter selection'}
+                  </h3>
                   <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                    جرب البحث بكلمة أخرى أو قم بإعادة تعيين خيارات التصفية لعرض كافة الأكواد.
+                    {isAr ? 'جرب البحث بكلمة أخرى أو قم بإعادة تعيين خيارات التصفية لعرض كافة الأكواد.' : 'Try a different search term or reset filters to display all code.'}
                   </p>
                   <button
                     onClick={resetFilters}
                     className="mt-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
                   >
-                    عرض كافة الأكواد
+                    {isAr ? 'عرض كافة الأكواد' : 'Show All Snippets'}
                   </button>
                 </div>
               )}
@@ -275,8 +275,8 @@ export default function App() {
           {/* TAB 7: SECURITY TOOLS & CRYPTO INSPECTOR */}
           {activeTab === 'tools' && <SecurityInspector />}
 
-          {/* TAB 8: PROJECT EXPORTER & GITHUB HUB */}
-          {activeTab === 'exporter' && <ProjectExporter />}
+          {/* TAB 8: CYBER DEFENSE LAB & TERMINAL SIMULATOR */}
+          {activeTab === 'lab' && <CyberLab />}
         </main>
       </div>
 
@@ -285,20 +285,36 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex items-center justify-center gap-2 text-slate-300 font-bold">
             <ShieldCheck className="w-4 h-4 text-cyan-400" />
-            <span>منصة مرجع البرمجة والدفاع السيبراني المعتمدة</span>
+            <span>
+              {isAr ? 'منصة مرجع البرمجة والدفاع السيبراني المعتمدة' : 'Certified Cyber Defense & Programming Codex'}
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-semibold">
+            <span>✨</span>
+            <span>{isAr ? 'إنشاء وتطوير: يوسف' : 'Created & Engineered by: Youssef'}</span>
           </div>
           <p className="text-slate-500 text-[11px] max-w-xl mx-auto">
-            كافة الأكواد والأوامر المتوفرة مجهزة للحماية والدفاع وتدقيق الأنظمة وإدارة الخوادم، وتمت صياغتها وفق معايير الحماية العالمية وتطوير التطبيقات الآمنة.
+            {isAr 
+              ? 'كافة الأكواد والأوامر المتوفرة مجهزة للحماية والدفاع وتدقيق الأنظمة وإدارة الخوادم، وتمت صياغتها وفق معايير الحماية العالمية وتطوير التطبيقات الآمنة.'
+              : 'All code snippets and terminal commands are crafted for defensive hardening, auditing, and secure systems administration according to global OWASP benchmarks.'}
           </p>
           <div className="flex items-center justify-center gap-4 text-[11px] text-slate-500 pt-1">
-            <span>النسخ بنقرة واحدة مفعل ✅</span>
+            <span>{isAr ? 'النسخ بنقرة واحدة مفعل ✅' : 'One-click copy enabled ✅'}</span>
             <span>•</span>
-            <span>متوافق مع الهواتف والكمبيوتر 📱💻</span>
+            <span>{isAr ? 'متوافق مع الهواتف والكمبيوتر 📱💻' : 'Responsive on Mobile & PC 📱💻'}</span>
             <span>•</span>
-            <span>دعم التصدير إلى GitHub متاح 🚀</span>
+            <span>{isAr ? 'مختبر التحديات والمحاكاة التفاعلية 🎯' : 'Interactive Cyber Lab & Simulator 🎯'}</span>
           </div>
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }

@@ -11,6 +11,7 @@ import {
   Cpu
 } from 'lucide-react';
 import { Snippet } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SnippetCardProps {
   snippet: Snippet;
@@ -23,6 +24,7 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
+  const { isAr } = useLanguage();
   const [copied, setCopied] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -100,12 +102,12 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
 
             {snippet.platform === 'termux' && (
               <span className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
-                <Terminal className="w-3 h-3" /> Termux أندرويد
+                <Terminal className="w-3 h-3" /> {isAr ? 'Termux أندرويد' : 'Termux Android'}
               </span>
             )}
             {snippet.platform === 'linux' && (
               <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1">
-                <Cpu className="w-3 h-3" /> لينكس / سيرفر
+                <Cpu className="w-3 h-3" /> {isAr ? 'لينكس / سيرفر' : 'Linux / Server'}
               </span>
             )}
 
@@ -115,7 +117,7 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
 
             {snippet.isDefensiveSecurity && (
               <span className="text-[11px] px-2 py-0.5 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/40 font-medium">
-                🛡️ أمان دفاعي
+                🛡️ {isAr ? 'أمان دفاعي' : 'Defensive'}
               </span>
             )}
           </div>
@@ -129,7 +131,7 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
                   ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' 
                   : 'bg-slate-800/60 text-slate-400 border-slate-700/60 hover:text-white'
               }`}
-              title={isFavorite ? 'إزالة من المفضلة' : 'حفظ في المفضلة'}
+              title={isFavorite ? (isAr ? 'إزالة من المفضلة' : 'Remove from Bookmarks') : (isAr ? 'حفظ في المفضلة' : 'Save to Bookmarks')}
             >
               <Bookmark className={`w-4 h-4 ${isFavorite ? 'fill-amber-400' : ''}`} />
             </button>
@@ -137,7 +139,7 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
               id={`dl-btn-${snippet.id}`}
               onClick={handleDownload}
               className="p-1.5 rounded-lg border bg-slate-800/60 text-slate-400 border-slate-700/60 hover:text-white transition-colors"
-              title="تحميل كملف برمجي"
+              title={isAr ? 'تحميل كملف برمجي' : 'Download code file'}
             >
               <Download className="w-4 h-4" />
             </button>
@@ -163,7 +165,7 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
 
       {/* Code Container */}
       <div className="relative bg-slate-950 p-4 font-mono text-xs overflow-x-auto border-b border-slate-800/80">
-        <div className="absolute top-2.5 left-2.5 z-10">
+        <div className={`absolute top-2.5 ${isAr ? 'left-2.5' : 'right-2.5'} z-10`}>
           <button
             id={`copy-btn-${snippet.id}`}
             onClick={handleCopy}
@@ -176,12 +178,12 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                <span>تم النسخ!</span>
+                <span>{isAr ? 'تم النسخ!' : 'Copied!'}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>نسخ الكود</span>
+                <span>{isAr ? 'نسخ الكود' : 'Copy Code'}</span>
               </>
             )}
           </button>
@@ -201,7 +203,11 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
           >
-            <span>{isExpanded ? 'إخفاء الشرح والتحذيرات' : 'عرض الشرح والتحذير الأمني'}</span>
+            <span>
+              {isExpanded 
+                ? (isAr ? 'إخفاء الشرح والتحذيرات' : 'Hide Explanation & Warnings')
+                : (isAr ? 'عرض الشرح والتحذير الأمني' : 'Show Explanation & Warnings')}
+            </span>
             {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
@@ -209,14 +215,16 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
             onClick={handleCopy}
             className="text-[11px] text-slate-400 hover:text-slate-200 underline underline-offset-4"
           >
-            {copied ? 'منسوخ ✅' : 'نسخ سريع'}
+            {copied ? (isAr ? 'منسوخ ✅' : 'Copied ✅') : (isAr ? 'نسخ سريع' : 'Quick Copy')}
           </button>
         </div>
 
         {isExpanded && (
           <div className="mt-3 pt-3 border-t border-slate-800/80 space-y-2 text-xs">
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300 leading-relaxed">
-              <strong className="text-cyan-300 block mb-1">💡 آلية العمل والشرح:</strong>
+              <strong className="text-cyan-300 block mb-1">
+                {isAr ? '💡 آلية العمل والشرح التفصيلي:' : '💡 Execution Mechanism & In-Depth Explanation:'}
+              </strong>
               {snippet.explanation}
             </div>
 
@@ -224,7 +232,9 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
               <div className="bg-amber-950/30 p-3 rounded-xl border border-amber-500/30 text-amber-200 flex items-start gap-2.5 leading-relaxed">
                 <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-amber-300 block mb-0.5">تحذير أمني دفاعي:</strong>
+                  <strong className="text-amber-300 block mb-0.5">
+                    {isAr ? 'تحذير أمني دفاعي:' : 'Defensive Security Advisory:'}
+                  </strong>
                   {snippet.securityWarning}
                 </div>
               </div>

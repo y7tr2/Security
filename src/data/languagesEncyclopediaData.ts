@@ -1,3 +1,9 @@
+export interface FunctionLineExplanation {
+  line: string;
+  commentAr: string;
+  commentEn: string;
+}
+
 export interface FunctionDetail {
   id: string;
   name: string;
@@ -5,14 +11,20 @@ export interface FunctionDetail {
   languageId: string;
   category: 'strings' | 'arrays_lists' | 'files_io' | 'crypto_security' | 'concurrency' | 'built_in' | 'network' | 'database';
   categoryLabel: string;
+  categoryLabelEn: string;
   syntax: string;
-  parameters: { name: string; type: string; description: string }[];
-  returnValue: { type: string; description: string };
+  parameters: { name: string; type: string; description: string; descriptionEn?: string }[];
+  returnValue: { type: string; description: string; descriptionEn?: string };
   whatItDoes: string;
+  whatItDoesEn: string;
   deepExplanation: string;
+  deepExplanationEn: string;
   codeExample: string;
+  lineBreakdown: FunctionLineExplanation[];
   securityTip: string;
+  securityTipEn: string;
   commonMistake?: string;
+  commonMistakeEn?: string;
 }
 
 export interface LanguageInfo {
@@ -20,17 +32,25 @@ export interface LanguageInfo {
   name: string;
   nameAr: string;
   badge: string;
+  badgeEn: string;
   iconName: string;
   color: string;
   borderColor: string;
   bgColor: string;
   paradigm: string;
+  paradigmEn: string;
   typing: string;
+  typingEn: string;
   execution: string;
+  executionEn: string;
   overview: string;
+  overviewEn: string;
   strengths: string[];
+  strengthsEn: string[];
   bestUseCases: string[];
+  bestUseCasesEn: string[];
   securityFocus: string;
+  securityFocusEn: string;
   fileExtension: string;
 }
 
@@ -40,129 +60,209 @@ export const languagesList: LanguageInfo[] = [
     name: 'Python',
     nameAr: 'بايثون',
     badge: 'الأكثر شعبية في الذكاء الاصطناعي والأمن',
+    badgeEn: 'Top Choice in AI & Cyber Security',
     iconName: 'Code2',
     color: 'text-amber-400',
     borderColor: 'border-amber-500/40',
     bgColor: 'bg-amber-950/20',
-    paradigm: 'متعددة الأنماط (كائنية التوجه OOP، إجرائية، وظيفية)',
-    typing: 'ديناميكية وقوية (Dynamic & Strongly Typed)',
-    execution: 'مفسرة عبر CPython مع Bytecode إلى Virtual Machine',
-    overview: 'لغة عالية المستوى تشتهر ببساطتها الفائقة وقابليتها العالية للقراءة. هي الخيار الأول عالمياً في مجالات الذكاء الاصطناعي، علم البيانات، الأتمتة، وأمن المعلومات والدفاع السيبراني بفضل مكتباتها الضخمة.',
+    paradigm: 'متعددة النماذج (كائنية، إجرائية، وظيفية)',
+    paradigmEn: 'Multi-paradigm (OOP, Procedural, Functional)',
+    typing: 'ديناميكية وقوية (Dynamic, Strongly Typed)',
+    typingEn: 'Dynamic, Strongly Typed',
+    execution: 'مفسرة عبر مفسر بايثون CPython إلى Bytecode',
+    executionEn: 'Interpreted via CPython Bytecode Virtual Machine',
+    overview: 'تتميز بتركيبها النحوي السلس وشبه الطبيعي ومكتباتها التشفيرية والشبكية الضخمة، وهي المعيار الذهبي لأتمتة المهام والتحليل الجنائي الرقمي والذكاء الاصطناعي.',
+    overviewEn: 'Renowned for clean, human-readable syntax and massive cryptographic/network ecosystems. The gold standard for automation, DFIR, and AI.',
     strengths: [
-      'صياغة نظيفة ومقروءة تشبه اللغة الإنجليزية الطبيعية',
-      'منظومة مكتبات عملاقة (PyPI) تغطي التشفير، الشبكات، وتعلم الآلة',
-      'سرعة فائقة في بناء النماذج الأولية والأتمتة السريعة'
+      'سرعة فائقة في كتابة النماذج الأولية والأتمتة',
+      'منظومة مكتبات أمنية ضخمة (cryptography, scapy, requests, pwntools)',
+      'مجتمع دعم عالمي هائل في علم البيانات والذكاء الاصطناعي'
+    ],
+    strengthsEn: [
+      'Rapid prototyping and scripting efficiency',
+      'Vast security & networking libraries (cryptography, scapy, requests)',
+      'Massive global ecosystem in Data Science and Machine Learning'
     ],
     bestUseCases: [
-      'برمجة أدوات الحماية والتحليل الجنائي الرقمي (Forensics)',
-      'الذكاء الاصطناعي وتطبيقات نماذج اللغة الكبيرة (LLMs)',
-      'تطوير الواجهات الخلفية للويب (FastAPI, Django, Flask)'
+      'كتابة سكربتات فحص الثغرات والتدقيق الأمني التلقائي',
+      'بناء خوادم الويب والواجهات الخلفية عبر FastAPI و Django',
+      'تحليل البيانات وحزم التشفير وتوليد المفاتيح الآمنة'
     ],
-    securityFocus: 'تجنب دوال التنفيذ المباشر (مثل eval و exec)، واستخدام secrets بدلاً من random للأرقام السرية، والتعامل الآمن مع فك تسلسل البيانات (pickle).',
+    bestUseCasesEn: [
+      'Security audit scripting and vulnerability assessment',
+      'Scalable backend web APIs with FastAPI & Django',
+      'Data analysis, cryptographic utilities, and token generation'
+    ],
+    securityFocus: 'احذر من دوال التنفيذ المباشر مثل `eval()` و `exec()` والمكتبات المترجمة التي لا تتحقق من نوع المدخلات، واعتمد مكتبة `secrets` بدلاً من `random` للتشفير.',
+    securityFocusEn: 'Never use eval() or exec() on untrusted inputs. Always enforce parameterized operations and use secrets instead of random for cryptographic tokens.',
     fileExtension: '.py'
   },
   {
     id: 'javascript',
     name: 'JavaScript / TypeScript',
-    nameAr: 'جافاسكريبت وتيب سكريبت',
-    badge: 'لغة الويب والخوادم الشاملة',
+    nameAr: 'جافاسكريبت / تايب سكريبت',
+    badge: 'لغة الويب والواجهات والتطبيقات الموزعة',
+    badgeEn: 'The Lingua Franca of Modern Web & APIs',
     iconName: 'Braces',
     color: 'text-yellow-400',
     borderColor: 'border-yellow-500/40',
     bgColor: 'bg-yellow-950/20',
-    paradigm: 'مبنية على النماذج الأولية (Prototypes)، وظيفية، غير متزامنة (Event-Driven)',
-    typing: 'JS ديناميكية ضعيفة | TS تمنح كتابة نوعية صارمة (Static Typing)',
-    execution: 'محركات JIT عالية السرعة (مثل Google V8, SpiderMonkey)',
-    overview: 'عماد شبكة الإنترنت في جانب العميل (المتصفحات) والخادم عبر بيئات تشغيل مثل Node.js و Bun. تتيح TypeScript الأمان النوعي المسبق قبل التشغيل لمنع الأخطاء البرمجية الشائعة.',
+    paradigm: 'قائمة على النماذج الأولية (Prototype-based)، وظيفية، تفاعلية بالكامل',
+    paradigmEn: 'Prototype-based, functional, event-driven',
+    typing: 'ديناميكية (JS) / ساكنة وصارمة (TypeScript)',
+    typingEn: 'Dynamic (JS) / Static & Strict (TypeScript)',
+    execution: 'مجمعة Just-In-Time عبر محركات فائقة مثل V8 و SpiderMonkey',
+    executionEn: 'JIT-compiled via modern engines like V8 & SpiderMonkey',
+    overview: 'عمود الإنترنت الحديث. تدعم بناء التطبيقات من جانب العميل والخادم عبر Node.js مع نموذج حلقة الأحداث (Event Loop) أحادي الخيط غير المعطل.',
+    overviewEn: 'The backbone of the modern web. Powers client-side interfaces and scalable Node.js server architectures with an asynchronous Event Loop.',
     strengths: [
-      'تعمل في كل متصفح على كوكب الأرض بدون أي تثبيت إضافي',
-      'معمارية الحدث غير المتزامنة (Event Loop) قادرة على تحمل آلاف الاتصالات المتزامنة',
-      'اكتمال المنظومة الكاملة للواجهة والخادم بلغة واحدة عبر npm'
+      'نموذج غير متزامن فائق السرعة عبر Event Loop لمعالجة آلاف الطلبات',
+      'أكبر مستودع حزم برمجي في العالم (npm)',
+      'TypeScript توفر أمان الأنواع الصارم لمنع الأخطاء مبكراً'
+    ],
+    strengthsEn: [
+      'Non-blocking event-driven I/O for concurrent requests',
+      'World largest package registry (npm)',
+      'TypeScript strict typing eliminates compile-time null and type bugs'
     ],
     bestUseCases: [
-      'تطبيقات الويب التفاعلية أحادية الصفحة (SPAs) باستخدام React و Vue',
-      'واجهات برمجة التطبيقات السريعة ذات الـ I/O العالي عبر Node.js و Express',
-      'تطبيقات الجوال والديسكتوب الهجينة (React Native, Electron)'
+      'تطوير واجهات المستخدم التفاعلية (React, Vue, Next.js)',
+      'بناء خوادم الـ API الميكروية ومعالجة تدفقات البيانات الحية',
+      'تطبيقات الهواتف وسطح المكتب (Electron, React Native)'
     ],
-    securityFocus: 'تطهير مدخلات DOM لمنع ثغرات XSS، وتجنب Prototype Pollution، وحماية الـ JWT والـ Cookies باستخدام خاصية HttpOnly و SameSite.',
+    bestUseCasesEn: [
+      'Interactive frontends with React and modern UI frameworks',
+      'Microservice REST & GraphQL APIs with Express and Fastify',
+      'Cross-platform desktop and mobile apps with Electron and React Native'
+    ],
+    securityFocus: 'تجنب ثغرات XSS بالابتعاد عن `innerHTML` و `eval()`، واستخدم دائماً `crypto.subtle` بدلاً من `Math.random` للعمليات الحساسة وتأمين رؤوس HTTP مثل CSP.',
+    securityFocusEn: 'Prevent XSS by eliminating innerHTML and eval(). Always use Web Crypto API (crypto.subtle) instead of Math.random for security tokens.',
     fileExtension: '.js / .ts'
   },
   {
     id: 'bash',
-    name: 'Bash / Shell',
-    nameAr: 'باش / سكريبتات الشل',
-    badge: 'لغة إدارة خوادم لينكس والطرفية',
+    name: 'Bash & Shell',
+    nameAr: 'باش والطرفية',
+    badge: 'لغة التحكم بالنظام وإدارة السيرفرات',
+    badgeEn: 'Operating System Control & Automation',
     iconName: 'Terminal',
     color: 'text-emerald-400',
     borderColor: 'border-emerald-500/40',
     bgColor: 'bg-emerald-950/20',
-    paradigm: 'أوامر تسلسلية وإجرائية (Procedural / Command Language)',
-    typing: 'غير مقيدة، كل شيء عبارة عن سلاسل نصية (Strings)',
-    execution: 'مفسرة مباشرة بواسطة مفسر صدفة نظام التشغيل (GNU Bash)',
-    overview: 'اللغة القياسية لإدارة أنظمة GNU/Linux و Unix وأنظمة السيرفرات وبيئة Termux. تربط بين برامج النظام المختلفة باستخدام تقنية الأنابيب (Pipes) وإعادة توجيه المسارات.',
+    paradigm: 'لغة أوامر إجرائية وأنابيب تدفق (Pipes)',
+    paradigmEn: 'Command procedural and pipeline-based shell',
+    typing: 'نصوص غير نمطية (Typeless strings)',
+    typingEn: 'Typeless strings and text streams',
+    execution: 'تفسير فوري لأوامر غلاف نظام التشغيل',
+    executionEn: 'Direct interpretive execution by kernel shell',
+    overview: 'أداة القوة المطلقة لمهندسي الأنظمة والدفاع السيبراني. تتيح دمج برامج لينكس المستقلة عبر الأنابيب لإنجاز مهام التدقيق المعقدة في سطر واحد.',
+    overviewEn: 'The essential tool for sysadmins and security engineers. Chains modular Linux utilities through pipes to audit and manage infrastructure.',
     strengths: [
-      'تحكم مباشر وسريع بنواة النظام، العمليات، الشبكة، ونظام الملفات',
-      'إمكانية تشغيلها على أي سيرفر أو حاوية Docker بدون تنصيب أدوات إضافية',
-      'ممتازة للأتمتة التكرارية وجدولة المهام الدورية (Cron Jobs)'
+      'متوفرة مسبقاً في كل أنظمة لينكس وماك و Termux دون أي تثبيت',
+      'قدرة فورية على التحكم بالعمليات ومراقبة العتاد والشبكات',
+      'مثالية لخطوط الإنتاج والتسليم المستمر CI/CD'
+    ],
+    strengthsEn: [
+      'Pre-installed on every Linux distribution, macOS, and Termux',
+      'Instant process control, network auditing, and filesystem inspection',
+      'Foundation for CI/CD runners and deployment pipelines'
     ],
     bestUseCases: [
-      'أتمتة إدارة الخوادم وعمليات النشر المتواصل (CI/CD Pipelines)',
-      'النسخ الاحتياطي التلقائي المشفر وتدوير السجلات (Log Rotation)',
-      'كتابة سكربتات التهيئة الأولية للحاويات والأنظمة'
+      'إدارة وتأمين الخوادم عن بعد والتحديثات الدورية للأمان',
+      'فحص السجلات (Log Analysis) ورصد محاولات الهجوم',
+      'تجهيز بيئات الحاويات السحابية والحزم'
     ],
-    securityFocus: 'وضع المتغيرات داخل علامات تنصيص `"$var"` دائماً لمنع تقسيم الكلمات وحقن الأوامر (Command Injection)، واستخدام `set -euo pipefail` في بداية السكربت.',
+    bestUseCasesEn: [
+      'Remote server hardening and automated security patching',
+      'High-speed log analysis and threat signature detection',
+      'Container bootstrapping and cloud provisioning'
+    ],
+    securityFocus: 'ضع دائماً المتغيرات داخل علامات اقتباس مزدوجة `"$VAR"` لمنع تقسيم الكلمات، واستخدم `set -euo pipefail` لإيقاف السكربت فور حدوث أي خطأ غير متوقع.',
+    securityFocusEn: 'Always double-quote variables `"$VAR"` to prevent word splitting and command injection. Use `set -euo pipefail` at script top.',
     fileExtension: '.sh'
   },
   {
     id: 'golang',
     name: 'Go (Golang)',
-    nameAr: 'جو (جولانج)',
-    badge: 'بطل الأنظمة السحابية والشبكات',
+    nameAr: 'قو لانق',
+    badge: 'معيار البنية السحابية وأدوات الأمان الحديثة',
+    badgeEn: 'Cloud Infrastructure & High-Speed Security Tools',
     iconName: 'Cpu',
     color: 'text-cyan-400',
     borderColor: 'border-cyan-500/40',
     bgColor: 'bg-cyan-950/20',
-    paradigm: 'إجرائية كائنية مبسطة (Composition over Inheritance) وتزامنية قوية',
-    typing: 'ساكنة وصارمة (Static & Strong Typing)',
-    execution: 'مترجمة مباشرة إلى كود آلة ثنائي (Native Binary) بدون بيئة تشغيل ثقيلة',
-    overview: 'لغة طورتها شركة Google بهدف الجمع بين سرعة تنفيذ C/C++ وسهولة صياغة بايثون. تتميز بنموذج تزامن ثوري مبني على خيوط خفيفة تسمى Goroutines وقنوات التواصل Channels.',
+    paradigm: 'متزامنة، إجرائية مع واجهات Composition مقتضبة',
+    paradigmEn: 'Concurrent, procedural with composition interfaces',
+    typing: 'ساكنة وصارمة (Static, Statically Typed)',
+    typingEn: 'Static, strong type system with inference',
+    execution: 'مترجمة إلى ملف ثنائي تنفيذي واحد مستقل (Single Static Binary)',
+    executionEn: 'Compiled directly into a self-contained static machine binary',
+    overview: 'ابتكرتها Google لإعادة تعريف هندسة البرمجيات الضخمة. تدمج البساطة المتناهية مع نموذج التزامن الفائق عبر قنوات وخيوط Goroutines خفيفة الوزن.',
+    overviewEn: 'Designed by Google for scalable software engineering. Combines extreme simplicity with lightweight concurrency via Goroutines and channels.',
     strengths: [
-      'توليد ملف تنفيذي ثنائي واحد مستقل تماماً (Single Standalone Binary)',
-      'تزامن خفيف جداً يستهلك كيلوبايتات معدودة لكل خيط معالجة',
-      'أوقات ترجمة وبناء فائقة السرعة وشفرة قياسية متجانسة'
+      'ملف تنفيذي واحد بدون الحاجة لتثبيت أي محركات أو مكتبات على الخادم',
+      'دعم التزامن بملايين العمليات المتوازية بأقل استهلاك للذاكرة',
+      'سرعة ترجمة وبناء تكاد تكون لحظية'
+    ],
+    strengthsEn: [
+      'Single zero-dependency static binary output for rapid deployment',
+      'Ultra-lightweight Goroutines allow millions of concurrent tasks',
+      'Near-instantaneous compilation speed'
     ],
     bestUseCases: [
-      'البنية التحتية السحابية وأدوات الحاويات (Docker و Kubernetes مبرمجان بـ Go)',
-      'الخدمات المصغرة (Microservices) ذات الضغط العالي والكمون المنخفض',
-      'أدوات الأمن السيبراني الموزعة وفاحصات المنافذ السريعة'
+      'بناء أدوات فحص الشبكات والماسحات الأمنية السريعة',
+      'برمجيات البنية التحتية السحابية (مثل Docker و Kubernetes)',
+      'الخوادم المصغرة والخدمات الموجهة للموثوقية العالية'
     ],
-    securityFocus: 'استخدام سياقات الإلغاء (context.Context) لمنع تسريب الموارد، وتجنب مشاكل سباق البيانات (Race Conditions) عبر فاحص `-race`.',
+    bestUseCasesEn: [
+      'High-throughput network scanners and cybersecurity auditing tools',
+      'Cloud container orchestration (Docker, Kubernetes are written in Go)',
+      'Mission-critical microservices and real-time backend engines'
+    ],
+    securityFocus: 'استخدم خوارزمية `subtle.ConstantTimeCompare` لمقارنة كلمات المرور والرموز لمنع Timing Attacks، واستخدم أقفال `sync.Mutex` لحماية الذاكرة المشتركة.',
+    securityFocusEn: 'Always compare cryptographic hashes using `subtle.ConstantTimeCompare` to stop side-channel timing attacks.',
     fileExtension: '.go'
   },
   {
     id: 'rust',
     name: 'Rust',
     nameAr: 'رست',
-    badge: 'أقصى درجات الأمان وحماية الذاكرة',
+    badge: 'أمان الذاكرة المطلق وأعلى كفاءة في الأداء',
+    badgeEn: 'Memory Safety & Zero-Cost Systems Performance',
     iconName: 'Shield',
     color: 'text-orange-400',
     borderColor: 'border-orange-500/40',
     bgColor: 'bg-orange-950/20',
     paradigm: 'وظيفية، إجرائية، متزامنة مع تجريدات بدون تكلفة (Zero-Cost Abstractions)',
+    paradigmEn: 'Functional, procedural with zero-cost abstractions',
     typing: 'ساكنة وصارمة جداً مع استنتاج تلقائي للأنواع (Type Inference)',
+    typingEn: 'Statically typed with powerful compile-time type inference',
     execution: 'مترجمة بالكامل عبر LLVM إلى كود آلة عالي الكفاءة',
-    overview: 'اللغة الرائدة في هندسة الأنظمة الحديثة. صممت للقضاء التام على ثغرات أمان الذاكرة (مثل Use-After-Free و Buffer Overflow) في مرحلة الترجمة دون الحاجة لجامع قمامة (Garbage Collector) بفضل نموذج الملكية (Ownership).',
+    executionEn: 'Compiled natively via LLVM backend to bare-metal performance',
+    overview: 'اللغة الرائدة في هندسة الأنظمة الحديثة. صممت للقضاء التام على ثغرات أمان الذاكرة (مثل Use-After-Free و Buffer Overflow) في مرحلة الترجمة دون الحاجة لجامع قمامة بفضل نموذج الملكية (Ownership).',
+    overviewEn: 'The modern systems benchmark. Eliminates entire classes of memory safety bugs at compile-time without runtime garbage collection via its Ownership model.',
     strengths: [
       'أمان ذاكرة مضمون في مرحلة الترجمة (Memory Safety Guaranteed)',
       'سرعة تنفيذ خام تضاهي وتتفوق على C و C++',
       'نظام حزم متميز وأدوات توثيق واختبار مدمجة (Cargo)'
     ],
+    strengthsEn: [
+      'Compile-time memory safety guarantee without garbage collector',
+      'Raw execution performance matching or surpassing C and C++',
+      'First-class package manager, build tool, and test runner (Cargo)'
+    ],
     bestUseCases: [
-      'تطوير أنظمة التشغيل والبرمجيات المضمنة (Embedded Systems)',
+      'تطوير أنظمة التشغيل والبرمجيات المضمنة وحزم التشفير الآمنة',
       'محركات الألعاب والمتصفحات وتطبيقات التشفير والعملات المشفرة',
       'تطوير محركات WebAssembly الفائقة للويب'
     ],
+    bestUseCasesEn: [
+      'Operating systems kernels, crypto engines, and embedded firmware',
+      'Next-generation browsers, cryptography primitives, and game engines',
+      'High-performance WebAssembly browser modules'
+    ],
     securityFocus: 'تجنب استخدام كتل `unsafe` إلا عند الضرورة القصوى مع مراجعة دقيقة لتدقيق المؤشرات وضمان سلامة الحدود.',
+    securityFocusEn: 'Limit `unsafe` blocks strictly and verify pointer validity to maintain compiler memory safety invariants.',
     fileExtension: '.rs'
   },
   {
@@ -170,25 +270,41 @@ export const languagesList: LanguageInfo[] = [
     name: 'C / C++',
     nameAr: 'سي وسي بلس بلس',
     badge: 'أساس الحوسبة وهندسة النواة',
+    badgeEn: 'Foundation of Operating Systems & Bare Metal',
     iconName: 'Binary',
     color: 'text-blue-400',
     borderColor: 'border-blue-500/40',
     bgColor: 'bg-blue-950/20',
     paradigm: 'إجرائية (C) / كائنية، عامة (Generics)، وعالية الأداء (C++)',
-    typing: 'ساكنة (Static Typing) مع تحويلات مباشرة',
+    paradigmEn: 'Procedural (C) / Object-oriented & Generic (C++)',
+    typing: 'ساكنة مع تحويلات مباشرة بالذاكرة',
+    typingEn: 'Statically typed with direct memory addressing',
     execution: 'مترجمة ومحسنة لأقصى حد لمعماريات المعالجات المختلفة',
+    executionEn: 'Compiled and optimized directly for target CPU architectures',
     overview: 'اللغات الأساسية التي بنيت عليها أنظمة التشغيل الحديثة (نواة لينكس، ويندوز، ماك)، محركات قواعد البيانات، والمترجمات. تمنح المبرمج تحكماً كاملاً بالعتاد وعناوين الذاكرة.',
+    overviewEn: 'The architectural foundation for modern operating system kernels, databases, and compilers. Grants absolute control over CPU instructions and memory.',
     strengths: [
       'أقصى سرعة ممكنة وتحكم كامل بالعتاد والذاكرة العشوائية',
       'توافق هائل ومكتبات صناعية تراكمت على مدار عقود',
       'معيار الحوسبة الرسومية والألعاب ثلاثية الأبعاد وعلم الروبوتات'
+    ],
+    strengthsEn: [
+      'Unsurpassed raw execution speed and direct hardware memory control',
+      'Vast industrial footprint and battle-tested libraries across decades',
+      'Industry standard for 3D graphics engines, robotics, and low-latency systems'
     ],
     bestUseCases: [
       'تطوير أنوية الأنظمة (Kernels) وتعريفات العتاد (Drivers)',
       'محركات قواعد البيانات مثل MySQL و PostgreSQL',
       'التطبيقات ذات القيود الصارمة على الوقت والذاكرة'
     ],
-    securityFocus: 'الحذر الشديد من طفح الذاكرة المؤقتة (Buffer Overflow)، واستخدام المؤشرات الذكية (smart pointers مثل `std::unique_ptr`) بدلاً من `malloc` و `free`.',
+    bestUseCasesEn: [
+      'Kernel programming and bare-metal device drivers',
+      'High-performance database storage engines and virtualization',
+      'Ultra-low-latency financial trading systems and game engines'
+    ],
+    securityFocus: 'احذر من طفح الذاكرة المؤقتة (Buffer Overflow) وتلف الذاكرة، واستخدم المؤشرات الذكية `std::unique_ptr` ودوال التحقق من الحدود بدلاً من `strcpy` و `malloc`.',
+    securityFocusEn: 'Prevent buffer overflows and memory corruption by using smart pointers (std::unique_ptr) and bounds-checked functions over raw malloc/strcpy.',
     fileExtension: '.c / .cpp'
   },
   {
@@ -196,57 +312,89 @@ export const languagesList: LanguageInfo[] = [
     name: 'SQL',
     nameAr: 'إس كيو إل',
     badge: 'لغة الاستعلام والبيانات العلائقية',
+    badgeEn: 'Relational Database Queries & Persistence',
     iconName: 'Database',
     color: 'text-purple-400',
     borderColor: 'border-purple-500/40',
     bgColor: 'bg-purple-950/20',
-    paradigm: 'تصريحية (Declarative): تحدد ما تريد وليس كيف تحضره',
-    typing: 'ساكنة تعتمد على مخطط الجداول (Schema-based)',
-    execution: 'تفسر وتحسن عبر محرك تحسين الاستعلامات (Query Planner & Optimizer)',
-    overview: 'اللغة القياسية للتعامل مع قواعد البيانات العلائقية (PostgreSQL, MySQL, SQLite, Oracle). مسؤولة عن إدارة وحفظ والبحث في أصول البيانات وضمان تناسقها وقواعد المعاملات (ACID).',
+    paradigm: 'تصريحية (Declarative Language)',
+    paradigmEn: 'Declarative query specification language',
+    typing: 'ساكنة وصارمة وفق جداول قاعدة البيانات',
+    typingEn: 'Statically typed database schema constraints',
+    execution: 'تفسير وتنفيذ عبر محرك تخطيط الاستعلامات في قاعدة البيانات',
+    executionEn: 'Optimized by query planner and execution engine',
+    overview: 'المعيار العالمي لإدارة واسترجاع البيانات المهيكلة في قواعد البيانات العلائقية (PostgreSQL, MySQL, SQLite). تحدد ما تريده وليس كيفية استخراجه.',
+    overviewEn: 'The international standard for structured relational data persistence, indexing, and querying in PostgreSQL, MySQL, and SQLite.',
     strengths: [
-      'قدرات استعلام وتحليل إحصائي وربط متقدمة بين الجداول المعقدة',
-      'ضمان سلامة وتناسق البيانات عبر المفاتيح والقيود (Constraints)',
-      'معيار صناعي موحد تعتمده جميع الأنظمة والمؤسسات حول العالم'
+      'كفاءة رياضية عالية في تصفية وربط ملايين السجلات في أجزاء من الثانية',
+      'ضمان معايير ACID للحفاظ على نزاهة وموثوقية البيانات المالية والحساسة',
+      'معيار ثابت ومدعوم في كافة منصات السحابة والتطبيقات'
+    ],
+    strengthsEn: [
+      'High relational performance in filtering and joining millions of rows',
+      'ACID transaction guarantees for data integrity in mission-critical apps',
+      'Universal compatibility across every cloud and enterprise framework'
     ],
     bestUseCases: [
-      'إدارة الحسابات المالية وسجلات المعاملات التجارية',
-      'بناء مستودعات البيانات وأنظمة التقارير والذكاء التجاري (BI)',
-      'المخازن المركزية لبيانات تطبيقات الويب والخوادم'
+      'تخزين واسترجاع بيانات المستخدمين والجلسات والحسابات',
+      'إنشاء التقارير التحليلية والمالية المعقدة',
+      'بناء جداول التدقيق وتوثيق سجلات الأمان (Audit Trails)'
     ],
-    securityFocus: 'استخدام الاستعلامات ذات المعاملات (Parameterized Queries / Prepared Statements) حصراً للقضاء على ثغرات حقن SQL (SQL Injection).',
+    bestUseCasesEn: [
+      'User accounts, permission persistence, and relational data modeling',
+      'Complex analytical aggregation and financial transaction ledgers',
+      'Security audit logging and event tracking'
+    ],
+    securityFocus: 'لا تدمج أبداً مدخلات المستخدم نصياً داخل عبارة الاستعلام لتفادي ثغرة SQL Injection الخطيرة. استخدم دائماً الاستعلامات المعلمية (Prepared Statements).',
+    securityFocusEn: 'Never concatenate user inputs into SQL strings. Always enforce Parameterized Queries / Prepared Statements to block SQL Injection.',
     fileExtension: '.sql'
   },
   {
     id: 'docker',
     name: 'Docker & Containers',
-    nameAr: 'دوكر وهندسة الحاويات',
-    badge: 'معيار عزل وتشغيل التطبيقات',
+    nameAr: 'دوكر والحاويات',
+    badge: 'عزل التطبيقات وتوحيد بيئات الإنتاج',
+    badgeEn: 'Container Isolation & Immutable Deployments',
     iconName: 'Boxes',
     color: 'text-sky-400',
     borderColor: 'border-sky-500/40',
     bgColor: 'bg-sky-950/20',
-    paradigm: 'بيانات التهيئة والتشغيل كشفرة برمجية (Infrastructure as Code - IaC)',
-    typing: 'بنية توجيهية طبقية (Layered Directives)',
-    execution: 'عزل عبر مساحات أسماء لينكس (Namespaces) ومجموعات التحكم (cgroups)',
-    overview: 'تقنية تعبئة وتغليف التطبيقات مع كافة مكتباتها وبيئتها داخل حاوية خفيفة ومعزولة تعمل في أي مكان بنفس النتيجة، مما يحل نهائياً معضلة "الكود يعمل في جهازي ولا يعمل على السيرفر".',
+    paradigm: 'إعلانية لتوصيف البنية والتغليف (Infrastructure as Code)',
+    paradigmEn: 'Declarative packaging and Infrastructure as Code',
+    typing: 'تكوين نصي وصفي للطبقات (Layered Specifications)',
+    typingEn: 'Layered container configuration instructions',
+    execution: 'معزولة عبر مساحات أسماء النواة (cgroups & namespaces)',
+    executionEn: 'Linux kernel isolated namespaces & control groups (cgroups)',
+    overview: 'تقنية تعبئة التطبيق مع كافة مكتباته واعتمادياته في حاوية برمجية معزولة وخفيفة تعمل بنفس الطريقة على جهاز المطور أو السيرفر السحابي.',
+    overviewEn: 'Packages applications with dependencies into immutable, isolated container images that run deterministically across dev and production.',
     strengths: [
-      'عزل كامل للبيئة دون استهلاك موارد الأنظمة الافتراضية الكاملة (VMs)',
-      'نشر فوري وسرعة إقلاع بالثواني وقابلية تكرار 100%',
-      'سهولة ترحيل التطبيقات بين السحابات المختلفة (Multi-Cloud Portability)'
+      'حل مشكلة "كان يعمل على جهازي!" نهائياً',
+      'عزل كامل للعمليات والمنافذ لتقليل سطح الهجوم',
+      'نشر سريع وتوسع سلس في البنى السحابية'
+    ],
+    strengthsEn: [
+      'Eliminates the "works on my machine" environmental discrepancy',
+      'Process and filesystem sandboxing to minimize host attack surface',
+      'Instant deployment and horizontal scalability across Kubernetes clusters'
     ],
     bestUseCases: [
-      'تغليف ونشر الخدمات المصغرة ومواقع الويب الحديثة',
+      'نشر التطبيقات والخدمات المصغرة معزولة عن النظام المضيف',
       'إنشاء بيئات اختبار مطابقة للإنتاج بأمان',
       'تشغيل أدوات الحماية في بيئات رملية معزولة (Sandboxing)'
     ],
+    bestUseCasesEn: [
+      'Hardened deployment of microservices with minimal attack surface',
+      'Isolated ephemeral sandbox environments for malware analysis',
+      'Deterministic CI/CD build environments'
+    ],
     securityFocus: 'عدم تشغيل الحاويات بصلاحية المستخدم الجذري (USER nonroot)، وفحص الحزم والاعتماديات من الثغرات، واستخدام صور أساسية مصغرة مثل Alpine أو Distroless.',
+    securityFocusEn: 'Never run containers as root (USER nonroot). Use minimal base images (Alpine or Distroless) and scan layers for CVE vulnerabilities.',
     fileExtension: 'Dockerfile'
   }
 ];
 
 export const functionsEncyclopedia: FunctionDetail[] = [
-  // PYTHON FUNCTIONS
+  // 1. PYTHON: map()
   {
     id: 'py-fn-map',
     name: 'map(function, iterable, ...)',
@@ -254,23 +402,34 @@ export const functionsEncyclopedia: FunctionDetail[] = [
     languageId: 'python',
     category: 'arrays_lists',
     categoryLabel: 'القوائم والمصفوفات',
+    categoryLabelEn: 'Arrays & Lists',
     syntax: 'map(function, iterable, ...)',
     parameters: [
-      { name: 'function', type: 'callable', description: 'دالة يتم تطبيقها على كل عنصر في المجموعة' },
-      { name: 'iterable', type: 'iterable', description: 'مجموعة قابلة للتكرار (مثل List أو Tuple أو Set)' }
+      { name: 'function', type: 'callable', description: 'دالة تطبق على كل عنصر بالتناوب', descriptionEn: 'Function applied to each element in the iterable' },
+      { name: 'iterable', type: 'iterable', description: 'مجموعة قابلة للتكرار (قائمة، مصفوفة، صفوف)', descriptionEn: 'Sequence to iterate over (list, tuple, etc.)' }
     ],
-    returnValue: { type: 'map object (iterator)', description: 'كائن متكرر مولد يمكن تحويله لقائمة عبر list()' },
-    whatItDoes: 'تطبق الدالة المحددة على كل عنصر من عناصر المصفوفة أو المجموعة دون الحاجة لكتابة حلقة تكرار for صريحة.',
-    deepExplanation: 'تعمل دالة map بتقنية التقييم الكسول (Lazy Evaluation)، مما يعني أنها لا تحسب النتائج دفعة واحدة وتستهلك الذاكرة، بل تنتج كل قيمة عند طلبها فقط في كل دورة تكرار، مما يجعلها فعالة جداً في معالجة البيانات الضخمة.',
-    codeExample: `# تنظيف وتحويل عناوين IP إلى مصفوفة نصوص
+    returnValue: { type: 'map iterator', description: 'مولد كسول ينتج العناصر المعالجة عند الطلب', descriptionEn: 'Lazy iterator yielding transformed elements on demand' },
+    whatItDoes: 'تطبق الدالة المحددة على كل عنصر من عناصر المجموعة دون الحاجة لكتابة حلقة for صريحة.',
+    whatItDoesEn: 'Applies a designated transformation function to every item in an iterable without explicit for loops.',
+    deepExplanation: 'تعمل بتقنية التقييم الكسول (Lazy Evaluation). هذا يعني أنها لا تستهلك الذاكرة باحتساب جميع العناصر دفعة واحدة، بل تحتفظ بالموقع وتنتج العنصر التالي فقط عندما تطلبه حلقة التكرار أو دالة list() أو next().',
+    deepExplanationEn: 'Employs lazy evaluation, meaning transformed values are computed on the fly rather than allocating a full new list in RAM.',
+    codeExample: `# تنظيف وتوحيد عناوين IP المدخلة
 raw_ips = ["  192.168.1.1  ", "10.0.0.1\\n", " 172.16.0.5 "]
 clean_ips = list(map(str.strip, raw_ips))
 
-print(clean_ips)
-# النتيجة: ['192.168.1.1', '10.0.0.1', '172.16.0.5']`,
-    securityTip: 'عند استخدام map مع مدخلات من مستخدم خارجي، تجنب تمرير دوال مجهولة المصدر أو تنفيذية قد تسبب DoS أو معالجة غير متوقعة.',
-    commonMistake: 'نسيان تحويل النتيجة إلى list() ومحاولة طباعة كائن map مباشرة.'
+print("Clean IPs:", clean_ips)`,
+    lineBreakdown: [
+      { line: 'raw_ips = ["  192.168.1.1  ", "10.0.0.1\\n", " 172.16.0.5 "]', commentAr: 'تعريف قائمة تحتوي على نصوص عناوين IP غير منسقة وبها مسافات وأسطر جديدة.', commentEn: 'Defines an array of raw IP strings with trailing whitespace and newline characters.' },
+      { line: 'clean_ips = list(map(str.strip, raw_ips))', commentAr: 'تطبيق دالة str.strip على كل عنصر لإزالة المسافات، ثم تحويل الناتج إلى قائمة list نهائية.', commentEn: 'Applies str.strip to each element to strip spaces, then collects into a final list.' },
+      { line: 'print("Clean IPs:", clean_ips)', commentAr: 'طباعة القائمة المنظفة بعد إزالة الفراغات غير المرغوبة.', commentEn: 'Outputs the cleansed sanitized list of IP addresses.' }
+    ],
+    securityTip: 'تجنب تمرير دوال ديناميكية أو مجهولة المصدر للمدخلات؛ تأكد أن الدالة الممررة آمنة وتتعامل مع أنواع البيانات المتوقعة فقط.',
+    securityTipEn: 'Do not pass dynamic or untrusted functions to map(); ensure the callable handles edge-case input types safely without raising unhandled errors.',
+    commonMistake: 'محاولة طباعة كائن map مباشرة دون تحويله عبر list()؛ حيث سيطبع عنوان المؤشر بالذاكرة بدلاً من المحتويات.',
+    commonMistakeEn: 'Printing a map object directly instead of wrapping with list(), which outputs the iterator memory pointer instead of values.'
   },
+
+  // 2. PYTHON: secrets.token_hex()
   {
     id: 'py-fn-secrets',
     name: 'secrets.token_hex([nbytes])',
@@ -278,21 +437,33 @@ print(clean_ips)
     languageId: 'python',
     category: 'crypto_security',
     categoryLabel: 'الأمن والتشفير',
-    syntax: 'secrets.token_hex(nbytes=None)',
+    categoryLabelEn: 'Cryptography & Security',
+    syntax: 'secrets.token_hex(nbytes=32)',
     parameters: [
-      { name: 'nbytes', type: 'int (اختياري)', description: 'عدد البايتات العشوائية المراد توليدها (الافتراضي 32 بايت)' }
+      { name: 'nbytes', type: 'int (اختياري)', description: 'عدد البايتات العشوائية التشفيرية المراد توليدها', descriptionEn: 'Number of random bytes to generate (default: 32)' }
     ],
-    returnValue: { type: 'str', description: 'سلسلة نصية بالنظام الست عشري (Hexadecimal) تمثل التوكن الآمن' },
-    whatItDoes: 'تولد توكنات أمان عشوائية مشفرة وغير قابلة للتنبؤ لإدارة الجلسات ورموز إعادة تعيين كلمات المرور.',
-    deepExplanation: 'تعتمد وحدة secrets على خوارزمية CSPRNG (Cryptographically Secure Pseudo-Random Number Generator) التابعة لنظام التشغيل (مثل /dev/urandom في لينكس)، خلافاً لوحدة random العادية التي تعتمد على خوارزمية Mersenne Twister القابلة للتوقع بعد مراقبة عدة عينات.',
+    returnValue: { type: 'str', description: 'سلسلة نصية ست عشرية (Hex) عشوائية مستحيلة التنبؤ', descriptionEn: 'Cryptographically unpredictable hex-encoded string' },
+    whatItDoes: 'تولد توكنات أمان ورموز تحقق عشوائية غير قابلة للتخمين لإدارة الجلسات ورموز CSRF واستعادة الحسابات.',
+    whatItDoesEn: 'Generates cryptographically secure, unpredictable random tokens for sessions, CSRF guards, and password resets.',
+    deepExplanation: 'تعتمد وحدة secrets على مولدات الأرقام العشوائية الآمنة لنظام التشغيل (CSPRNG مثل /dev/urandom في لينكس أو CryptGenRandom في ويندوز)، خلافاً لمكتبة random العادية القابلة للتوقع بعد فحص عينات.',
+    deepExplanationEn: 'Powered by OS-level CSPRNG (/dev/urandom) unlike standard math/random which uses predictable pseudorandom PRNG algorithms.',
     codeExample: `import secrets
 
-# توليد رمز أمان جلسة مؤقت CSRF Token
-session_token = secrets.token_hex(32)
-print(f"Secure Token: {session_token}")
-# ينتج سلسلة بطول 64 حرفاً ست عشرياً عشوائياً مستحيلاً تخمينه`,
-    securityTip: 'لا تستخدم أبداً مكتبة random.randint أو random.choice في توليد مفاتيح التشفير، كلمات المرور، أو توكنات الجلسات، واعتمد secrets حصراً.',
+# توليد توكن جلسة آمن بطول 32 بايت (64 حرف ست عشري)
+csrf_token = secrets.token_hex(32)
+print("CSRF Token:", csrf_token)`,
+    lineBreakdown: [
+      { line: 'import secrets', commentAr: 'استيراد المكتبة القياسية المخصصة للأمان والتشفير في بايثون.', commentEn: 'Imports Python dedicated cryptographic randomness standard module.' },
+      { line: 'csrf_token = secrets.token_hex(32)', commentAr: 'توليد 32 بايت من العشوائية المشفرة وتحويلها إلى 64 حرفاً بالنظام الست عشري.', commentEn: 'Generates 32 bytes of secure entropy formatted as a 64-character hex string.' },
+      { line: 'print("CSRF Token:", csrf_token)', commentAr: 'طباعة الرمز الآمن المولد للاستخدام في حماية طلبات الويب.', commentEn: 'Prints the generated high-entropy token ready for web request protection.' }
+    ],
+    securityTip: 'لا تستخدم أبداً مكتبة `random.randint` أو `random.choice` لتوليد كلمات المرور أو التوكنات؛ استخدم `secrets` حصراً.',
+    securityTipEn: 'Never use the `random` module for secrets, session IDs, or crypto keys; always use `secrets`.',
+    commonMistake: 'تحديد عدد بايتات قليل جداً (أقل من 16 بايت)، مما يسهل هجمات التخمين بالقوة الغاشمة (Brute-Force).',
+    commonMistakeEn: 'Supplying insufficient entropy (under 16 bytes), allowing brute-force or collision vulnerabilities.'
   },
+
+  // 3. PYTHON: hashlib.sha256()
   {
     id: 'py-fn-hashlib',
     name: 'hashlib.sha256(data).hexdigest()',
@@ -300,51 +471,81 @@ print(f"Secure Token: {session_token}")
     languageId: 'python',
     category: 'crypto_security',
     categoryLabel: 'الأمن والتشفير',
+    categoryLabelEn: 'Cryptography & Security',
     syntax: 'hashlib.sha256(data_bytes).hexdigest()',
     parameters: [
-      { name: 'data_bytes', type: 'bytes', description: 'البيانات المراد توليد بصمتها بصيغة البايتات الثنائية (Bytes)' }
+      { name: 'data_bytes', type: 'bytes', description: 'البيانات الثنائية المراد حساب بصمتها الرقمية', descriptionEn: 'Binary byte stream to compute the hash digest for' }
     ],
-    returnValue: { type: 'str', description: 'بصمة هاش رقمية مشفرة بطول 64 حرفاً ست عشرياً (256-bit)' },
-    whatItDoes: 'تحسب البصمة الرقمية أحادية الاتجاه (One-Way Hash) لأي نص أو ملف للتحقق من سلامته ومنع التلاعب.',
-    deepExplanation: 'دوال التجزئة التشفيرية تضمن أن أي تغيير ولو بمقدار بايت واحد في البيانات الأصلية سينتج عنه هاش مختلف تماماً (Avalanche Effect)، مما يجعلها الأداة الأساسية للتحقق من التوقيع الرقمي والنزاهة.',
+    returnValue: { type: 'str', description: 'بصمة تشفيرية ثابتة بطول 64 حرفاً ست عشرياً (256-bit)', descriptionEn: 'Fixed-length 64-char hexadecimal digest (256 bits)' },
+    whatItDoes: 'تحسب البصمة الرقمية أحادية الاتجاه (One-Way Hash) لأي نص أو ملف للتحقق من النزاهة ومنع التلاعب.',
+    whatItDoesEn: 'Calculates a deterministic one-way cryptographic hash of arbitrary data to guarantee integrity and detect tampering.',
+    deepExplanation: 'تعتمد خوارزمية SHA-256 على تأثير الانهيار التشفيري (Avalanche Effect)؛ فإذا تغير حرف واحد في النص المدخل، تتغير ما لا يقل عن 50% من أحرف البصمة الناتجة تماماً وبشكل شبه عشوائي.',
+    deepExplanationEn: 'SHA-256 exhibits strong avalanche effect: changing a single bit in the input radically alters more than 50% of the output digest.',
     codeExample: `import hashlib
 
-def get_file_integrity_hash(file_content: str) -> str:
-    # يجب تحويل النص إلى بايتات قبل التشفير
-    encoded_data = file_content.encode('utf-8')
-    return hashlib.sha256(encoded_data).hexdigest()
+def calculate_checksum(payload: str) -> str:
+    raw_bytes = payload.encode('utf-8')
+    return hashlib.sha256(raw_bytes).hexdigest()
 
-checksum = get_file_integrity_hash("System Config Critical Version 1.0")
-print(checksum)`,
-    securityTip: 'لا تستخدم خوارزميات MD5 أو SHA-1 القديمة لأنها مكسورة وتتعرض لهجمات التصادم (Collision Attacks). استخدم SHA-256 أو SHA-3 دائماً.',
+print(calculate_checksum("Security-Policy-Version-1"))`,
+    lineBreakdown: [
+      { line: 'import hashlib', commentAr: 'استيراد وحدة خوارزميات التجزئة والتشفير في بايثون.', commentEn: 'Imports the hashlib cryptographic hashing module.' },
+      { line: 'def calculate_checksum(payload: str) -> str:', commentAr: 'تعريف دالة تقبل نصاً وترجع بصمة الهاش كنص.', commentEn: 'Declares function receiving string payload and returning string hash.' },
+      { line: 'raw_bytes = payload.encode("utf-8")', commentAr: 'تحويل النص إلى مصفوفة بايتات ثنائية لأن دوال الهاش لا تقبل نصوصاً مجردة.', commentEn: 'Encodes text to UTF-8 bytes required by hashing algorithms.' },
+      { line: 'return hashlib.sha256(raw_bytes).hexdigest()', commentAr: 'حساب SHA-256 وتحويل النتيجة إلى صيغة نصية ست عشرية.', commentEn: 'Calculates SHA-256 and returns hex string representation.' }
+    ],
+    securityTip: 'لا تستخدم SHA-256 مباشرة لحفظ كلمات المرور بدون تمليح وتكرار؛ استخدم Argon2 أو bcrypt لحماية كلمات المرور من جداول Rainbow Tables.',
+    securityTipEn: 'Do not use plain SHA-256 for password storage; use slow memory-hard password hashers like Argon2id or bcrypt.',
+    commonMistake: 'تمرير نص str مباشرة إلى sha256 دون تحويله إلى bytes عبر .encode()، مما يسبب TypeError.',
+    commonMistakeEn: 'Passing a string directly to sha256 without calling .encode(), causing a TypeError.'
   },
+
+  // 4. PYTHON: subprocess.run()
   {
-    id: 'py-fn-open',
-    name: 'open(file, mode, encoding)',
+    id: 'py-fn-subprocess',
+    name: 'subprocess.run(args, check, shell)',
     language: 'Python',
     languageId: 'python',
     category: 'files_io',
     categoryLabel: 'الملفات والإدخال/الإخراج',
-    syntax: 'with open(file, mode="r", encoding="utf-8") as f:',
+    categoryLabelEn: 'Files & System I/O',
+    syntax: 'subprocess.run(["cmd", "arg1"], check=True, shell=False, capture_output=True)',
     parameters: [
-      { name: 'file', type: 'str | Path', description: 'مسار الملف المراد فتحه' },
-      { name: 'mode', type: 'str', description: 'وضع الفتح: r (قراءة)، w (كتابة مع استبدال)، a (إلحاق)' },
-      { name: 'encoding', type: 'str', description: 'ترميز النصوص، يفضل utf-8 دوماً' }
+      { name: 'args', type: 'list[str]', description: 'قائمة تحتوي الأمر ومعاملاته مفصولة', descriptionEn: 'List containing executable and its arguments separately' },
+      { name: 'shell', type: 'bool', description: 'يجب ضبطها دائماً على False لمنع ثغرات حقن الأوامر', descriptionEn: 'Must remain False to prevent command injection vulnerabilities' },
+      { name: 'check', type: 'bool', description: 'إطلاق استثناء في حال فشل الأمر (Exit Code != 0)', descriptionEn: 'Raises CalledProcessError if returncode is non-zero' }
     ],
-    returnValue: { type: 'file object', description: 'مقبض الملف للقراءة أو الكتابة' },
-    whatItDoes: 'تفتح ملفاً في نظام التشغيل لإجراء عمليات القراءة أو التعديل بأمان داخل مدير السياق (with statement).',
-    deepExplanation: 'استخدام سياق `with` يضمن إغلاق مقبض الملف تلقائياً حتى في حال حدوث خطأ استثنائي (Exception)، مما يمنع تسريب واستهلاك File Descriptors في نظام التشغيل.',
-    codeExample: `import os
+    returnValue: { type: 'CompletedProcess', description: 'كائن يحتوي على مخرجات الأمر وحالة الانتهاء', descriptionEn: 'CompletedProcess instance holding stdout, stderr, returncode' },
+    whatItDoes: 'تشغل أوامر وبرامج نظام التشغيل بأمان وعزل تام مع منع ثغرات حقن أوامر النظام Command Injection.',
+    whatItDoesEn: 'Safely spawns and executes operating system processes while preventing command injection attacks.',
+    deepExplanation: 'عند تعيين shell=False وتمرير الأمر كمصفوفة، يتم استدعاء واجهة execve في النواة مباشرة بدون وسيط قشرة النظام (Shell). هذا يمنع تفسير الرموز الخبيثة مثل الفاصلة المنقوطة (;) أو الأنابيب (|).',
+    deepExplanationEn: 'With shell=False and list arguments, execve kernel system call is invoked directly, preventing shell meta-character evaluation.',
+    codeExample: `import subprocess
 
-safe_log_path = os.path.abspath("audit.log")
+# تشغيل أمر آمن ومحمي من حقن الأوامر
+result = subprocess.run(
+    ["ping", "-c", "2", "127.0.0.1"],
+    capture_output=True,
+    text=True,
+    shell=False,
+    check=True
+)
 
-# كتابة سجل أمني مع الإغلاق التلقائي
-with open(safe_log_path, "a", encoding="utf-8") as log_file:
-    log_file.write("[SECURITY AUDIT] User admin authenticated successfully.\\n")`,
-    securityTip: 'احذر من ثغرات Path Traversal عند تمرير أسماء ملفات مأخوذة من المستخدم؛ تأكد دائماً باستخدام os.path.basename أو Path.resolve().',
+print("Output:\\n", result.stdout)`,
+    lineBreakdown: [
+      { line: 'import subprocess', commentAr: 'استيراد وحدة إدارة العمليات الفرعية في نظام التشغيل.', commentEn: 'Imports the subprocess OS management module.' },
+      { line: 'result = subprocess.run(', commentAr: 'بدء تشغيل عملية فرعية جديدة مع انتظار اكتمالها.', commentEn: 'Starts a subprocess and awaits synchronous completion.' },
+      { line: '    ["ping", "-c", "2", "127.0.0.1"],', commentAr: 'تمرير الأمر والمعاملات كمصفوفة عناصر منفصلة لمنع تفسير أي رموز نظام خبيثة.', commentEn: 'Passes executable and arguments as discrete array tokens.' },
+      { line: '    capture_output=True, text=True, shell=False, check=True', commentAr: 'التقاط المخرجات وقفل shell=False لضمان الأمان ورفع استثناء عند الفشل.', commentEn: 'Captures stdout as text with shell=False for defense.' },
+      { line: 'print("Output:\\n", result.stdout)', commentAr: 'طباعة النص القياسي الراجع من تنفيذ الأمر.', commentEn: 'Prints captured stdout stream.' }
+    ],
+    securityTip: 'لا تقم أبداً بتفعيل shell=True عند التعامل مع مدخلات خارجية مأخوذة من المستخدم أو شبكة الإنترنت.',
+    securityTipEn: 'Never enable shell=True when processing variables influenced by user input.',
+    commonMistake: 'استخدام os.system(cmd_string) القديمة التي لا تلتقط المخرجات وتفتح الباب على مصراعيه لحقن الأوامر.',
+    commonMistakeEn: 'Using legacy os.system() which forwards strings directly to /bin/sh without safety controls.'
   },
 
-  // JAVASCRIPT / TYPESCRIPT FUNCTIONS
+  // 5. JAVASCRIPT: Array.prototype.reduce()
   {
     id: 'js-fn-reduce',
     name: 'Array.prototype.reduce(callback, initialValue)',
@@ -352,301 +553,244 @@ with open(safe_log_path, "a", encoding="utf-8") as log_file:
     languageId: 'javascript',
     category: 'arrays_lists',
     categoryLabel: 'القوائم والمصفوفات',
-    syntax: 'array.reduce((accumulator, currentValue, index, arr) => { ... }, initialValue)',
+    categoryLabelEn: 'Arrays & Lists',
+    syntax: 'array.reduce((acc, curr, index, arr) => { ... }, initialValue)',
     parameters: [
-      { name: 'callback', type: 'function', description: 'دالة تنفذ على كل عنصر لتحديث القيمة التراكمية' },
-      { name: 'initialValue', type: 'any', description: 'القيمة الابتدائية للمجمع (Accumulator)' }
+      { name: 'callback', type: 'Function', description: 'دالة تنفذ على كل عنصر لتحديث المجمع (Accumulator)', descriptionEn: 'Function executed on every element to update accumulator' },
+      { name: 'initialValue', type: 'any', description: 'القيمة الابتدائية التي يبدأ بها المجمع التراكمي', descriptionEn: 'Initial value for the accumulator' }
     ],
-    returnValue: { type: 'any', description: 'القيمة النهائية المجمعة (رقم، كائن، مصفوفة، إلخ)' },
-    whatItDoes: 'تختصر وتدمج جميع عناصر المصفوفة في قيمة واحدة نهائية بناءً على دالة تجميعية محددة.',
-    deepExplanation: 'تعتبر دالة reduce الأقوى في المعالجة الوظيفية للمصفوفات، حيث يمكن من خلالها محاكاة map و filter وتحويل مصفوفة إلى قاموس كائنات (Object Indexing) بكفاءة معالجة خطية O(n).',
-    codeExample: `// حساب تكرار محاولات الدخول بحسب اسم المستخدم
-const auditLogs = ['admin', 'guest', 'admin', 'operator', 'admin'];
+    returnValue: { type: 'any', description: 'القيمة النهائية المتراكمة الناتجة عن المعالجة', descriptionEn: 'The single final accumulated value' },
+    whatItDoes: 'تختزل عناصر مصفوفة كاملة إلى قيمة واحدة مفردة (مثل مجموع، كائن مصنف، أو خريطة بيانات).',
+    whatItDoesEn: 'Reduces all elements of an array into a single accumulated value (sum, object index, map, etc.).',
+    deepExplanation: 'تعتبر reduce أقوى دالة وظيفية في جافاسكريبت؛ حيث يمكن من خلالها محاكاة دوال map و filter معاً في دورة تكرار واحدة O(N)، مما يوفر استهلاك الذاكرة.',
+    deepExplanationEn: 'The fundamental functional aggregator in JavaScript; can implement map and filter concurrently in a single O(N) traversal.',
+    codeExample: `// تجميع وإحصاء هجمات الأمان حسب النوع
+const securityAlerts = [
+  { type: 'SQLi', ip: '1.2.3.4' },
+  { type: 'XSS', ip: '5.6.7.8' },
+  { type: 'SQLi', ip: '9.1.2.3' }
+];
 
-const loginAttempts = auditLogs.reduce((acc, user) => {
-  acc[user] = (acc[user] || 0) + 1;
+const counts = securityAlerts.reduce((acc, alert) => {
+  acc[alert.type] = (acc[alert.type] || 0) + 1;
   return acc;
 }, {} as Record<string, number>);
 
-console.log(loginAttempts);
-// النتيجة: { admin: 3, guest: 1, operator: 1 }`,
-    securityTip: 'وفر دائماً initialValue صريح لتجنب حدوث TypeError في حال كانت المصفوفة المدخلة فارغة.',
-  },
-  {
-    id: 'js-fn-promise-all',
-    name: 'Promise.all(iterable)',
-    language: 'JavaScript / TypeScript',
-    languageId: 'javascript',
-    category: 'concurrency',
-    categoryLabel: 'التزامن والوعود (Async)',
-    syntax: 'Promise.all([promise1, promise2, ...])',
-    parameters: [
-      { name: 'iterable', type: 'Array<Promise>', description: 'مصفوفة من الوعود (Promises) المراد تنفيذها بالتوازي' }
+console.log(counts); // { SQLi: 2, XSS: 1 }`,
+    lineBreakdown: [
+      { line: 'const securityAlerts = [...]', commentAr: 'تعريف مصفوفة تحتوي سجلات تنبيهات الأمان بنوع كل هجمة وعنوان IP.', commentEn: 'Defines an array of security alert objects containing type and IP.' },
+      { line: 'const counts = securityAlerts.reduce((acc, alert) => {', commentAr: 'بدء عملية الاختزال مع تمرير المجمع acc والعنصر الحالي alert.', commentEn: 'Initiates reduce with accumulator object and current alert.' },
+      { line: '  acc[alert.type] = (acc[alert.type] || 0) + 1;', commentAr: 'زيادة عداد نوع الهجمة بمقدار 1 أو البدء من الصفر إذا كانت جديدة.', commentEn: 'Increments alert type count, defaulting to zero if undefined.' },
+      { line: '  return acc;', commentAr: 'إرجاع كائن المجمع المحدث للدورة التكرارية التالية.', commentEn: 'Returns mutated accumulator for the next loop iteration.' },
+      { line: '}, {} as Record<string, number>);', commentAr: 'تحديد كائن فارغ {} كقيمة ابتدائية للمجمع لتفادي أخطاء المصفوفات الفارغة.', commentEn: 'Supplies an empty object as initial value to prevent empty array runtime crashes.' }
     ],
-    returnValue: { type: 'Promise<Array>', description: 'وعد يُحل بمصفوفة نتائج كل الوعود أو يرفض فور فشل أي وعد' },
-    whatItDoes: 'تنفذ عدة عمليات غير متزامنة بالتوازي وتنتظر اكتمالها جميعاً في أسرع وقت ممكن.',
-    deepExplanation: 'تطلق العمليات بالتوازي وتستفيد من الطبيعة غير المتزامنة للمتصفح أو Node.js، خلافاً لتنفيذها المتتالي عبر حلقات for-await التي تبطئ الأداء.',
-    codeExample: `async function fetchSystemHealth() {
-  const [dbStatus, apiStatus, cacheStatus] = await Promise.all([
-    fetch('/api/health/db').then(r => r.json()),
-    fetch('/api/health/api').then(r => r.json()),
-    fetch('/api/health/cache').then(r => r.json())
-  ]);
-
-  return { dbStatus, apiStatus, cacheStatus };
-}`,
-    securityTip: 'إذا كان أحد الطلبات غير حرج ويمكن الاستمرار حتى لو فشل، استخدم `Promise.allSettled()` بدلاً من `Promise.all()` لتجنب إلغاء كل العمليات بسبب خطأ واحد.',
+    securityTip: 'حدد دائماً القيمة الابتدائية initialValue؛ لأن استدعاء reduce على مصفوفة فارغة بدون قيمة ابتدائية سيتسبب في انهيار البرنامج بـ TypeError.',
+    securityTipEn: 'Always provide an explicit initialValue; executing reduce on an empty array without initialValue throws a TypeError.',
+    commonMistake: 'نسيان عبارة return acc داخل دالة callback، مما يجعل المجمع undefined في الدورات التالية.',
+    commonMistakeEn: 'Forgetting to return the accumulator inside the reducer callback, yielding undefined.'
   },
+
+  // 6. JAVASCRIPT: crypto.getRandomValues()
   {
-    id: 'js-fn-subtle-crypto',
-    name: 'crypto.subtle.digest(algorithm, data)',
+    id: 'js-fn-crypto-random',
+    name: 'crypto.getRandomValues(typedArray)',
     language: 'JavaScript / TypeScript',
     languageId: 'javascript',
     category: 'crypto_security',
     categoryLabel: 'الأمن والتشفير',
-    syntax: 'await crypto.subtle.digest("SHA-256", dataBuffer)',
+    categoryLabelEn: 'Cryptography & Security',
+    syntax: 'window.crypto.getRandomValues(new Uint8Array(length))',
     parameters: [
-      { name: 'algorithm', type: 'string', description: 'اسم الخوارزمية (مثل "SHA-256" أو "SHA-512")' },
-      { name: 'dataBuffer', type: 'ArrayBufferView', description: 'مصفوفة البايتات المشفرة عبر TextEncoder' }
+      { name: 'typedArray', type: 'TypedArray', description: 'مصفوفة بايتات رقمية لملئها بقيم عشوائية مشفرة', descriptionEn: 'TypedArray (e.g. Uint8Array) to populate with cryptographic bytes' }
     ],
-    returnValue: { type: 'Promise<ArrayBuffer>', description: 'وعد يحل بذاكرة البايتات الخاصة بالهاش' },
-    whatItDoes: 'تحسب الهاش التشفيري مباشرة داخل المتصفح أو بيئة Node الحديثة باستخدام المحرك الأمني للنظام (Web Crypto API).',
-    deepExplanation: 'تتميز Web Crypto API بأنها مكتبة قياسية مدعومة من العتاد، وتعمل في معزل أمني (Hardware Acceleration) دون الحاجة لتحميل مكتبات تشفير خارجية قد تحتوي على ثغرات في سلاسل التوريد (Supply Chain Attacks).',
-    codeExample: `async function sha256Browser(message: string): Promise<string> {
-  const msgUint8 = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+    returnValue: { type: 'TypedArray', description: 'نفس المصفوفة الممررة بعد تعبئتها بالعشوائية', descriptionEn: 'The same typed array populated with cryptographically random bytes' },
+    whatItDoes: 'تولد بايتات عشوائية تشفيرية عالية النزاهة في المتصفح وبيئات Node.js لمنع هجمات التنبؤ.',
+    whatItDoesEn: 'Fills a typed array with cryptographically strong pseudorandom values directly from hardware entropy.',
+    deepExplanation: 'تستقي العشوائية من مولدات الأمان في النواة وليس خوارزمية Math.random الضعيفة، وتستخدم لتوليد Nonces ومفاتيح تشفير AES ومُعرفات UUIDv4 الآمنة.',
+    deepExplanationEn: 'Hardware entropy powered alternative to Math.random. Imperative for session IDs, nonces, and symmetric keys.',
+    codeExample: `// توليد توكن مصادقة آمن 16 بايت في المتصفح
+const buffer = new Uint8Array(16);
+window.crypto.getRandomValues(buffer);
 
-// تجربة البصمة
-sha256Browser("Confidential Message").then(console.log);`,
-    securityTip: 'استخدم هذه الواجهة دوماً في جانب العميل لتدقيق سلامة الملفات وبصمات الـ Subresource Integrity (SRI).',
+const hexToken = Array.from(buffer)
+  .map(b => b.toString(16).padStart(2, '0'))
+  .join('');
+
+console.log("Secure Token:", hexToken);`,
+    lineBreakdown: [
+      { line: 'const buffer = new Uint8Array(16);', commentAr: 'إنشاء مصفوفة بايتات غير سالبة بطول 16 بايت (128-bit).', commentEn: 'Allocates a 16-byte (128-bit) unsigned integer typed array.' },
+      { line: 'window.crypto.getRandomValues(buffer);', commentAr: 'تعبئة المصفوفة بأرقام عشوائية تشفيرية من مولد الأمان بالنظام.', commentEn: 'Populates buffer with cryptographic entropy from the OS CSPRNG.' },
+      { line: 'const hexToken = Array.from(buffer).map(...).join("");', commentAr: 'تحويل البايتات إلى سلسلة نصوص بالنظام الست عشري المنظم.', commentEn: 'Converts byte values to formatted 2-character hexadecimal representation.' }
+    ],
+    securityTip: 'لا تستخدم Math.random() مطلقاً في أي سيناريو أمني أو توليد توكنات؛ استخدم دائماً crypto.getRandomValues().',
+    securityTipEn: 'Never use Math.random() for security tokens, passwords, or crypto nonces; use crypto.getRandomValues().',
+    commonMistake: 'تمرير مصفوفة JavaScript عادية [] بدلاً من TypedArray (مثل Uint8Array)، مما ينتج TypeMismatchError.',
+    commonMistakeEn: 'Passing standard JavaScript Array instead of a typed array, triggering a TypeMismatchError.'
   },
 
-  // BASH / SHELL FUNCTIONS & COMMANDS
+  // 7. BASH: set -euo pipefail
   {
-    id: 'bash-fn-grep',
-    name: 'grep [options] pattern [file]',
-    language: 'Bash / Linux',
+    id: 'bash-fn-strict',
+    name: 'set -euo pipefail',
+    language: 'Bash & Shell',
     languageId: 'bash',
-    category: 'strings',
-    categoryLabel: 'معالجة النصوص والفلترة',
-    syntax: 'grep -E -i "pattern" /path/to/logfile',
+    category: 'built_in',
+    categoryLabel: 'التحكم وحماية السكربتات',
+    categoryLabelEn: 'Control & Script Hardening',
+    syntax: 'set -euo pipefail',
     parameters: [
-      { name: '-E (extended)', type: 'flag', description: 'تفعيل التعابير النمطية المتقدمة (Regex)' },
-      { name: '-i (ignore-case)', type: 'flag', description: 'تجاهل حالة الأحرف الكبيرة والصغيرة' },
-      { name: '-r / -R (recursive)', type: 'flag', description: 'البحث التكراري داخل جميع المجلدات الفرعية' }
+      { name: '-e', type: 'flag', description: 'إيقاف السكربت فور فشل أي أمر', descriptionEn: 'Exit immediately if any command returns non-zero' },
+      { name: '-u', type: 'flag', description: 'اعتبار المتغيرات غير المعرفة خطأ قاتلاً', descriptionEn: 'Treat unset variables as error and exit' },
+      { name: '-o pipefail', type: 'flag', description: 'إيقاف السكربت إذا فشل أي طرف في سلسلة الأنابيب', descriptionEn: 'Pipeline returns exit code of first failing command' }
     ],
-    returnValue: { type: 'Exit Code', description: '0 إذا وُجد تطابق، 1 إذا لم يوجد، >1 في حال وجود خطأ' },
-    whatItDoes: 'تبحث داخل الملفات أو مخرجات الطرفية عن أسطر تطابق نصاً أو تعبيراً نمطياً وتقوم بفرزها.',
-    deepExplanation: 'أداة grep هي الركيزة الأساسية لمهندسي الأمن والأنظمة لتحليل سجلات النظام واكتشاف محاولات الاختراق، وتعتمد على خوارزميات مطابقة نصوص عالية السرعة مكتوبة بلغة C.',
-    codeExample: `# البحث عن محاولات تسجيل الدخول الفاشلة في سجلات لينكس
-grep -i "failed password" /var/log/auth.log | awk '{print $1, $2, $3, $11}'`,
-    securityTip: 'عند البحث في ملفات ثنائية أو مجهولة المصدر، أضف خيار `-I` لتخطي الملفات الثنائية ومنع تشويه مخرجات الطرفية.',
-  },
-  {
-    id: 'bash-fn-chmod',
-    name: 'chmod [options] mode file',
-    language: 'Bash / Linux',
-    languageId: 'bash',
-    category: 'files_io',
-    categoryLabel: 'الملفات وصلاحيات النظام',
-    syntax: 'chmod 600 id_rsa # أو chmod 700 backup_script.sh',
-    parameters: [
-      { name: 'mode', type: 'octal / symbolic', description: 'أرقام الصلاحيات الثلاثية: المالك، المجموعة، والآخرون' },
-      { name: 'file', type: 'path', description: 'مسار الملف أو المجلد المطلوب تعديل صلاحياته' }
-    ],
-    returnValue: { type: 'Exit Code', description: '0 في حال النجاح' },
-    whatItDoes: 'تحدد وتغير أذونات الوصول وقراءة وكتابة وتنفيذ الملفات في أنظمة يونكس ولينكس.',
-    deepExplanation: 'يعتمد نظام الصلاحيات في لينكس على 3 بتات لكل فئة: القراءة (4)، الكتابة (2)، والتنفيذ (1). على سبيل المثال، الرقم 600 يعني (4+2=6 للمالك، و 0 للمجموعة، و 0 للآخرين)، وهو المعيار الأمني الصارم لمفاتيح SSH الخاصة.',
-    codeExample: `# حماية مفتاح SSH الخاص ومنع قراءته من أي مستخدم آخر
-chmod 600 ~/.ssh/id_ed25519
-
-# حماية مجلد المفاتيح بالكامل
-chmod 700 ~/.ssh`,
-    securityTip: 'لا تقم أبداً بمنح صلاحية `chmod 777` لأي ملف أو مجلد على خادم إنتاجي؛ هذا يسمح لأي مستخدم أو ثغرة بالكتابة والتنفيذ في النظام.',
-  },
-  {
-    id: 'bash-fn-trap',
-    name: 'trap command signal',
-    language: 'Bash / Linux',
-    languageId: 'bash',
-    category: 'crypto_security',
-    categoryLabel: 'الأمان وإدارة المقاطعات',
-    syntax: 'trap cleanup_function EXIT SIGINT SIGTERM',
-    parameters: [
-      { name: 'command', type: 'string / function', description: 'الأمر أو الدالة المنفذة عند التقاط الإشارة' },
-      { name: 'signal', type: 'signals', description: 'إشارات النظام مثل EXIT، INT (Ctrl+C)، أو TERM' }
-    ],
-    returnValue: { type: 'void', description: 'تسجيل معالج الإشارة' },
-    whatItDoes: 'تلتقط إشارات التوقف والمقاطعة لتنفيذ أوامر تنظيف آمنة وحذف الملفات المؤقتة الحساسة قبل خروج السكربت.',
-    deepExplanation: 'تمنع دالة trap بقاء ملفات مؤقتة غير مشفرة (Temp Files) أو عمليات معلقة في الخلفية عند قيام المستخدم أو النظام بإنهاء السكربت قسراً عبر Ctrl+C أو انتهاء المهام.',
-    codeExample: `#!/bin/bash
+    returnValue: { type: 'shell state', description: 'تغيير سلوك قشرة باش للوضع الآمن الصارم', descriptionEn: 'Configures strict defense execution mode for the shell' },
+    whatItDoes: 'التعويذة الأساسية لحماية سكربتات باش؛ تمنع استمرار تنفيذ السكربت عند حدوث أخطاء أو استخدام متغيرات غير معينة.',
+    whatItDoesEn: 'The definitive defense header for Bash scripts; halts execution on unexpected errors or undefined variables.',
+    deepExplanation: 'بدون هذا السطر، إذا فشل أمر مثل rm -rf "$DIR/*" وكان متغير $DIR فارغاً لخطأ مطبعي، سيتحول الأمر إلى rm -rf "/*" ويمسح كامل نظام التشغيل!',
+    deepExplanationEn: 'Without this, an unset variable in rm -rf "$PATH_VAR/*" expands to root directory deletion. This directive stops that instantly.',
+    codeExample: `#!/usr/bin/env bash
+# تفعيل الوضع الصارم الدفاعي
 set -euo pipefail
 
-TEMP_DIR=$(mktemp -d)
-# ضمان حذف المجلد المؤقت فور إنهاء السكربت تحت أي ظرف
-trap 'rm -rf "$TEMP_DIR"; echo "[INFO] Cleaned up temporary files."' EXIT
+BACKUP_DIR="/var/backups"
+echo "Starting safe backup to $BACKUP_DIR"
 
-echo "Working safely in: $TEMP_DIR"`,
-    securityTip: 'استخدم trap دائماً في سكربتات الأتمتة التي تتعامل مع ملفات فك تشفير أو شهادات رقمية مؤقتة لضمان محوها الآمن.',
+# لو كان المتغير غير معرف هنا سيتوقف السكربت فوراً قبل أي كارثة
+tar -czf "$BACKUP_DIR/data.tar.gz" /etc/nginx 2>/dev/null`,
+    lineBreakdown: [
+      { line: '#!/usr/bin/env bash', commentAr: 'سطر Shebang لتحديد مفسر باش المتوافق مع كافة التوزيعات.', commentEn: 'Portable shebang identifying Bash interpreter.' },
+      { line: 'set -euo pipefail', commentAr: 'تفعيل إيقاف السكربت عند الأخطاء، ومنع المتغيرات غير المعرفة، والتحقق من الأنابيب.', commentEn: 'Enables strict exit-on-error, undefined variable check, and pipe failure propagation.' },
+      { line: 'BACKUP_DIR="/var/backups"', commentAr: 'تعريف مسار الحفظ الآمن داخل متغير.', commentEn: 'Defines target destination path string.' },
+      { line: 'tar -czf "$BACKUP_DIR/data.tar.gz" ...', commentAr: 'أرشفة المجلد مع ضمان وضع المتغيرات بين اقتباسات مزدوجة لمنع التلاعب.', commentEn: 'Executes compression with double-quoted path preventing word splitting.' }
+    ],
+    securityTip: 'اجعل `set -euo pipefail` السطر الأول في كل سكربت باش تكتبه على الإطلاق.',
+    securityTipEn: 'Place `set -euo pipefail` at the very top of every production Bash script.',
+    commonMistake: 'عدم توفير قيمة افتراضية لمتغير اختياري مثل ${VAR:-default} مما يؤدي لإيقاف السكربت بسبب علم -u.',
+    commonMistakeEn: 'Not providing fallback syntax for optional variables like ${VAR:-fallback}, causing premature exits.'
   },
 
-  // GO (GOLANG) FUNCTIONS
+  // 8. GO: subtle.ConstantTimeCompare
   {
-    id: 'go-fn-goroutine',
-    name: 'go func() { ... }()',
+    id: 'go-fn-constant-time',
+    name: 'subtle.ConstantTimeCompare(x, y []byte)',
     language: 'Go (Golang)',
     languageId: 'golang',
-    category: 'concurrency',
-    categoryLabel: 'التزامن ومعالجة الخيوط',
-    syntax: 'go myWorkerFunction(param)',
+    category: 'crypto_security',
+    categoryLabel: 'الأمن والتشفير',
+    categoryLabelEn: 'Cryptography & Security',
+    syntax: 'subtle.ConstantTimeCompare(hashA, hashB) == 1',
     parameters: [
-      { name: 'function_call', type: 'call', description: 'الدالة المراد إطلاقها كخيط خفيف مستقل (Goroutine)' }
+      { name: 'x', type: '[]byte', description: 'البايتات التشفيرية الأولى للمقارنة', descriptionEn: 'First byte slice to compare' },
+      { name: 'y', type: '[]byte', description: 'البايتات التشفيرية الثانية للمقارنة', descriptionEn: 'Second byte slice to compare' }
     ],
-    returnValue: { type: 'void', description: 'يبدأ التنفيذ فوراً في الخلفية' },
-    whatItDoes: 'تطلق خيط معالجة فائق الخفة (Goroutine) يعمل بالتزامن مع البرنامج الرئيسي دون حجب المسار.',
-    deepExplanation: 'الـ Goroutine ليست خيط معالجة حقيقي على مستوى نظام التشغيل (OS Thread) الذي يستهلك ميغابايت من الذاكرة، بل تدار بواسطة Go Runtime وتستهلك 2 كيلوبايت فقط عند البدء، مما يتيح تشغيل مئات الآلاف منها في نفس الوقت.',
+    returnValue: { type: 'int', description: 'يرجع 1 إذا كانت القيمتان متطابقتين تماماً، و 0 خلاف ذلك', descriptionEn: 'Returns 1 if slices have identical contents and length; 0 otherwise' },
+    whatItDoes: 'تقارن سلسلتين مشفرتين في زمن زمني ثابت O(1) لمنع هجمات التحليل الزمني (Timing Attacks).',
+    whatItDoesEn: 'Compares cryptographic tokens and hashes in constant time to eliminate side-channel timing attack vulnerabilities.',
+    deepExplanation: 'عامل المقارنة العادي == يتوقف فور اكتشاف أول بايت غير متطابق. يستغل المهاجم فرق النانو ثانية لمعرفة الحروف الصحيحة تدريجياً. هذه الدالة تفحص كافة البايتات دوماً في نفس الزمن بدقة.',
+    deepExplanationEn: 'Standard string equality returns early on first mismatch. Attackers measure timing differences to forge valid tokens. Constant-time checks always inspect every byte.',
     codeExample: `package main
 
 import (
+	"crypto/subtle"
 	"fmt"
-	"net/http"
-	"sync"
 )
 
-func checkURL(url string, wg *sync.WaitGroup) {
-	defer wg.Done()
-	resp, err := http.Get(url)
-	if err == nil {
-		fmt.Printf("[ALIVE] %s -> Status: %d\\n", url, resp.StatusCode)
-	}
+func verifyApiSignature(expected, received []byte) bool {
+	// مقارنة زمنية ثابتة تمنع هجمات Timing Attack
+	return subtle.ConstantTimeCompare(expected, received) == 1
 }
 
 func main() {
-	var wg sync.WaitGroup
-	targets := []string{"https://google.com", "https://github.com"}
-	for _, target := range targets {
-		wg.Add(1)
-		go checkURL(target, &wg) // إطلاق فحص متزامن فوري
-	}
-	wg.Wait()
+	keyA := []byte("secret_api_token_hash_a")
+	keyB := []byte("secret_api_token_hash_a")
+	isValid := verifyApiSignature(keyA, keyB)
+	fmt.Println("Is Signature Valid:", isValid)
 }`,
-    securityTip: 'استخدم دائماً `sync.WaitGroup` أو قنوات `channels` لتنظيم إنهاء الخيوط، وتجنب مشاركة متغيرات الذاكرة بدون أقفال `sync.Mutex` لتفادي Race Conditions.',
-  },
-  {
-    id: 'go-fn-crypto-rand',
-    name: 'rand.Read(b []byte)',
-    language: 'Go (Golang)',
-    languageId: 'golang',
-    category: 'crypto_security',
-    categoryLabel: 'الأمن والتشفير',
-    syntax: 'import "crypto/rand" ... rand.Read(buffer)',
-    parameters: [
-      { name: 'buffer', type: '[]byte', description: 'مصفوفة البايتات المراد ملؤها بالقيم المشفرة العشوائية' }
+    lineBreakdown: [
+      { line: 'import "crypto/subtle"', commentAr: 'استيراد حزمة العمليات التشفيرية الدقيقة والآمنة زمنياً.', commentEn: 'Imports Go cryptographic subtle constant-time utilities.' },
+      { line: 'func verifyApiSignature(expected, received []byte) bool', commentAr: 'دالة فحص توقيع الطلبات واستقبال مصفوفتي بايتات.', commentEn: 'Declares signature verification taking two byte slices.' },
+      { line: 'return subtle.ConstantTimeCompare(expected, received) == 1', commentAr: 'المقارنة في وقت ثابت دون إنهاء مبكر، وإرجاع true عند التطابق الكامل.', commentEn: 'Executes constant-time comparison, returning boolean match.' }
     ],
-    returnValue: { type: '(n int, err error)', description: 'عدد البايتات المعبأة وأي خطأ قد يطرأ' },
-    whatItDoes: 'تملأ مصفوفة بايتات بأرقام عشوائية مشفرة وآمنة تماماً مستخرجة من محرك النواة التشفيري.',
-    deepExplanation: 'حزمة `crypto/rand` في لغة Go مهيأة للمطابقة مع معايير FIPS 140 وتستقي العشوائية من مولدات أمان العتاد، وهي المعيار الإلزامي لتوليد مفاتيح AES وحبيبات التمليح (Salts).',
-    codeExample: `package main
-
-import (
-	"crypto/rand"
-	"encoding/hex"
-	"fmt"
-)
-
-func generateSecureSalt(size int) (string, error) {
-	salt := make([]byte, size)
-	_, err := rand.Read(salt)
-	if err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(salt), nil
-}`,
-    securityTip: 'لا تخلط بين حزمة `crypto/rand` وحزمة `math/rand`. الحزمة الأخيرة حتمية وغير آمنة للتشفير مطلقاً.',
+    securityTip: 'استخدم دائماً دوال المقارنة ذات الوقت الثابت عند التحقق من توكنات API ورموز HMAC وكلمات المرور.',
+    securityTipEn: 'Always use constant-time comparison when verifying API keys, HMAC signatures, and auth tokens.',
+    commonMistake: 'مقارنة نصوص الهاش باستخدام عامل == العادي في مسارات التوثيق الحساسة.',
+    commonMistakeEn: 'Comparing hashes or signatures using plain == in authentication endpoints.'
   },
 
-  // RUST FUNCTIONS
+  // 9. RUST: match on Result<T, E>
   {
     id: 'rs-fn-match',
-    name: 'match value { Pattern => expr }',
+    name: 'match result { Ok(val) => ..., Err(e) => ... }',
     language: 'Rust',
     languageId: 'rust',
     category: 'built_in',
     categoryLabel: 'التحكم ومطابقة الأنماط',
-    syntax: 'match result { Ok(val) => ..., Err(e) => ... }',
+    categoryLabelEn: 'Pattern Matching & Control',
+    syntax: 'match operation_result { Ok(v) => v, Err(err) => handle_error(err) }',
     parameters: [
-      { name: 'value', type: 'expression', description: 'المتغير أو التعبير المراد مطابقته وفحصه' }
+      { name: 'expression', type: 'Result / Option / Enum', description: 'التعبير المراد مطابقة كافة حالاته الممكنة', descriptionEn: 'The enum, Result, or Option expression to evaluate' }
     ],
-    returnValue: { type: 'any', description: 'قيمة الذراع المطابق' },
-    whatItDoes: 'بناء تحكم شامل يفحص جميع الاحتمالات الممكنة ويجبر المطور على معالجة كل حالات النجاح والأخطاء.',
-    deepExplanation: 'في لغة Rust، ميزة مطابقة الأنماط (Pattern Matching) شاملة (Exhaustive)، مما يعني أن المترجم سيرفض بناء البرنامج إذا نسيت معالجة حالة واحدة محتملة (مثل حالة الخطأ في النتيجة Err أو غياب القيمة None). هذا يلغي تماماً خطأ المؤشر الفارغ Null Pointer Exception الشهير.',
-    codeExample: `fn inspect_port(port: u16) -> &'static str {
-    match port {
-        22 => "SSH - Secure Shell Service",
-        80 => "HTTP - Web Traffic (Unencrypted)",
-        443 => "HTTPS - Secure Web Traffic",
-        1..=1024 => "System Privileged Port",
-        _ => "Standard User / Dynamic Port",
+    returnValue: { type: 'any', description: 'قيمة الذراع المطابق الناتج عن الفحص', descriptionEn: 'The evaluated expression of the matching pattern branch' },
+    whatItDoes: 'بناء تحكم شامل يجبر المطور في مرحلة الترجمة على معالجة كل حالات النجاح والفشل الممكنة دون إهمال أي سيناريو.',
+    whatItDoesEn: 'Exhaustive pattern matching construct forcing developers to handle all success and failure branches at compile time.',
+    deepExplanation: 'في Rust لا يوجد مفهوم Null Pointer Exception. دوال النظام ترجع كائن Result يحتوي إما على Ok وإما على Err. والمترجم يرفض بناء البرنامج إذا أهملت معالجة أي حالة.',
+    deepExplanationEn: 'Eliminates null pointer exceptions completely. Rust compiler rejects code that does not account for all potential variants.',
+    codeExample: `use std::fs::File;
+
+fn open_security_config(filepath: &str) {
+    match File::open(filepath) {
+        Ok(file) => println!("Config file opened successfully: {:?}", file),
+        Err(err) => eprintln!("SECURITY ALERT: Failed to open file: {}", err),
     }
 }`,
-    securityTip: 'اعتمد دوماً على `match` بدلاً من استدعاء `.unwrap()` المباشر على كائنات `Result`، لأن unwrap يتسبب في انهيار (Panic) للبرنامج في حال حدوث خطأ.',
+    lineBreakdown: [
+      { line: 'use std::fs::File;', commentAr: 'استيراد بنية التعامل مع الملفات من مكتبة رست القياسية.', commentEn: 'Imports standard library File struct.' },
+      { line: 'fn open_security_config(filepath: &str)', commentAr: 'تعريف دالة تقبل مسار الملف كمرجع نصي مقترض &str.', commentEn: 'Defines function taking a borrowed string slice path.' },
+      { line: 'match File::open(filepath) {', commentAr: 'فتح الملف ومطابقة كائن النتيجة Result المرجع.', commentEn: 'Attempts file opening and begins pattern matching on Result.' },
+      { line: '    Ok(file) => println!("Config file opened successfully: {:?}", file),', commentAr: 'معالجة حالة النجاح Ok واستلام مقبض الملف بأمان.', commentEn: 'Handles Ok variant safely accessing the file handle.' },
+      { line: '    Err(err) => eprintln!("SECURITY ALERT: Failed to open file: {}", err),', commentAr: 'معالجة حالة الخطأ Err وطباعتها على مسار الأخطاء القياسي لمنع الانهيار.', commentEn: 'Handles Err variant gracefully without panic crash.' }
+    ],
+    securityTip: 'تجنب استخدام .unwrap() في كود الإنتاج لأنها تسبب انهياراً كاملاً للبرنامج (Panic) عند حدوث خطأ؛ استخدم match أو unwrap_or_else.',
+    securityTipEn: 'Avoid using .unwrap() in production code; use match or unwrap_or_else to avoid panic crashes.',
+    commonMistake: 'نسيان تغطية كافة الحالات المحتملة، مما يؤدي لرفض المترجم للكود بخطأ non-exhaustive patterns.',
+    commonMistakeEn: 'Missing a case variant, causing the Rust compiler to reject the build with a non-exhaustive patterns error.'
   },
 
-  // SQL FUNCTIONS
+  // 10. SQL: PREPARE & Parameterized Queries
   {
-    id: 'sql-fn-coalesce',
-    name: 'COALESCE(val1, val2, ...)',
+    id: 'sql-fn-prepared',
+    name: 'PREPARE stmt FROM query / Parameterized Query',
     language: 'SQL',
     languageId: 'sql',
     category: 'database',
-    categoryLabel: 'قواعد البيانات ومعالجة القيم',
-    syntax: 'SELECT COALESCE(user_phone, alternative_phone, "غير محدد") FROM users;',
+    categoryLabel: 'قواعد البيانات',
+    categoryLabelEn: 'Database Security',
+    syntax: 'SELECT * FROM users WHERE username = $1 AND role = $2;',
     parameters: [
-      { name: 'values', type: 'list of expressions', description: 'قائمة القيم المراد فحصها بالترتيب' }
+      { name: '$1, $2 (أو ?)', type: 'placeholders', description: 'علامات حجز مكان المعاملات المنفصلة عن بنية الاستعلام', descriptionEn: 'Placeholders separating data values from SQL query structure' }
     ],
-    returnValue: { type: 'any', description: 'أول قيمة غير خالية (Non-NULL) في القائمة' },
-    whatItDoes: 'ترجع أول قيمة غير معدومة (غير NULL) من بين الحقول الممررة، وتوفر قيمة بديلة آمنة.',
-    deepExplanation: 'في قواعد البيانات، التعامل مع حقول NULL غير المنضبطة قد يؤدي إلى نتائج خاطئة في العمليات الحسابية ومقارنات الشروط، وتضمن COALESCE توفير قيمة افتراضية مستقرة.',
-    codeExample: `-- استخراج سجلات محاولات الدخول مع توفير قيمة افتراضية آمنة في حال عدم توفر عنوان IP
-SELECT 
-    user_id, 
-    COALESCE(client_ip, '0.0.0.0') AS ip_address,
-    created_at
-FROM authentication_events
-WHERE status = 'FAILED';`,
-    securityTip: 'عند برمجة استعلامات الصلاحيات، لا تعتمد على أن الحقول المفقودة تعني الموافقة؛ استخدم COALESCE(is_blocked, TRUE) لتطبيق مبدأ الأمان الافتراضي (Fail-Secure).',
-  },
+    returnValue: { type: 'recordset', description: 'سجلات النتائج الآمنة بنسبة 100% ضد الحقن', descriptionEn: 'Sanitized query result set guaranteed immune to injection' },
+    whatItDoes: 'تمنع ثغرات حقن قواعد البيانات SQL Injection نهائياً عن طريق فصل كود الاستعلام عن بيانات المستخدم.',
+    whatItDoesEn: 'Completely neutralizes SQL Injection by pre-compiling the query structure separately from user-provided values.',
+    deepExplanation: 'يقوم محرك قاعدة البيانات بترجمة وهيكلة الاستعلام مسبقاً في الذاكرة كشجرة تنفيذ. عندما تصل مدخلات المستخدم، تعامل كقيم بيانات نقية (Literal Data) حتى لو احتوت على عبارات مثل OR 1=1.',
+    deepExplanationEn: 'The database compiles the query syntax tree beforehand; incoming parameters are strictly treated as data literals rather than executable SQL clauses.',
+    codeExample: `-- استعلام معلمي آمن تماماً (Parameterized Query)
+-- في PostgreSQL / Python / Node.js
+PREPARE get_user_by_role (text, text) AS
+    SELECT id, username, email, created_at
+    FROM system_users
+    WHERE username = $1 AND status = $2;
 
-  // DOCKER DIRECTIVES
-  {
-    id: 'docker-dir-user',
-    name: 'USER <user>[:<group>]',
-    language: 'Docker & Containers',
-    languageId: 'docker',
-    category: 'files_io',
-    categoryLabel: 'إدارة الصلاحيات والعزل',
-    syntax: 'RUN adduser -D appuser && USER appuser',
-    parameters: [
-      { name: 'user', type: 'string / UID', description: 'اسم أو معرف المستخدم غير الجذري لتشغيل التطبيق' }
+EXECUTE get_user_by_role('admin', 'ACTIVE');`,
+    lineBreakdown: [
+      { line: 'PREPARE get_user_by_role (text, text) AS', commentAr: 'تجهيز وبناء الاستعلام في محرك قاعدة البيانات وتحديد أنواع المدخلات.', commentEn: 'Pre-compiles query structure in database specifying strict parameter types.' },
+      { line: '    SELECT id, username, email, created_at FROM system_users', commentAr: 'تحديد الحقول المطلوبة بدقة وتجنب استعلامات SELECT * غير المنضبطة.', commentEn: 'Selects specific fields avoiding unbounded SELECT * resource overhead.' },
+      { line: '    WHERE username = $1 AND status = $2;', commentAr: 'استخدام المعاملات $1 و $2 كبيانات نقية تفصل بين الشفرة والمدخلات.', commentEn: 'Binds parameters ($1, $2) strictly as literals eliminating SQL injection.' },
+      { line: 'EXECUTE get_user_by_role("admin", "ACTIVE");', commentAr: 'تنفيذ الاستعلام بتمرير القيم الفعلية بأمان تام.', commentEn: 'Executes prepared plan with validated user arguments.' }
     ],
-    returnValue: { type: 'directive', description: 'تغيير مستخدم التشغيل لجميع التعليمات اللاحقة' },
-    whatItDoes: 'تحدد المستخدم غير الجذري (Non-root user) الذي سيشغل حاوية Docker بدلاً من مستخدم root الخطير.',
-    deepExplanation: 'إذا تم اختراق تطبيق يعمل داخل حاوية تعمل بصلاحية root، فإن المهاجم يمتلك صلاحيات النواة الجذري ويسهل عليه اختراق حاجز الحاوية (Container Breakout) والوصول إلى السيرفر المضيف (Host Server). تحديد مستخدم مقيد يحصر أثر الاختراق داخل مسار محمي.',
-    codeExample: `FROM node:20-alpine
-
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-COPY . .
-
-# إنشاء مستخدم آمن ومقيد
-USER node
-
-EXPOSE 3000
-CMD ["node", "server.js"]`,
-    securityTip: 'التزم دائماً بقاعدة الـ Non-Root User في كل Dockerfile تقوم بإنشائه لضمان حماية خادم الإنتاج.',
+    securityTip: 'لا تدمج أبداً متغيرات بايثون أو جافاسكريبت داخل نص SQL بواسطة علامة + أو f-strings أو Template literals.',
+    securityTipEn: 'Never concatenate strings or format templates into SQL commands; parameterize all variable bindings.',
+    commonMistake: 'استبدال المعاملات بتعقيم يدوي للنصوص (Sanitization) عبر استبدال الفواصل؛ المهاجمون يجدون دائماً ثغرات في الفلاتر اليدوية.',
+    commonMistakeEn: 'Relying on custom regex or string-replace filters instead of native database parameterized queries.'
   }
 ];

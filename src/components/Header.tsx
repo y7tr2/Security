@@ -9,11 +9,13 @@ import {
   Binary, 
   Sparkles,
   Bot,
-  FolderArchive,
-  Layers
+  Crosshair,
+  Layers,
+  Languages
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
-export type TabType = 'snippets' | 'encyclopedia' | 'assistant' | 'python' | 'security' | 'termux' | 'tools' | 'exporter';
+export type TabType = 'snippets' | 'encyclopedia' | 'assistant' | 'python' | 'security' | 'termux' | 'tools' | 'lab';
 
 interface HeaderProps {
   activeTab: TabType;
@@ -34,10 +36,12 @@ export const Header: React.FC<HeaderProps> = ({
   showFavoritesOnly,
   setShowFavoritesOnly,
 }) => {
+  const { isAr, toggleLanguage, t } = useLanguage();
+
   return (
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top bar with title and stats */}
+        {/* Top bar with title, language switcher, search and stats */}
         <div className="flex flex-col md:flex-row items-center justify-between py-4 gap-4">
           <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
             <div className="flex items-center gap-3">
@@ -47,55 +51,82 @@ export const Header: React.FC<HeaderProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-xl font-bold text-white tracking-wide">
-                    مرجع البرمجة والدفاع السيبراني
+                    {isAr ? 'مرجع البرمجة والدفاع السيبراني' : 'Cyber Defense & Programming Codex'}
                   </h1>
                   <span className="hidden sm:inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                    <Sparkles className="w-3 h-3" /> معايير أمنية دفاعية
+                    <Sparkles className="w-3 h-3" /> {isAr ? 'معايير أمنية دفاعية' : 'Defensive Hardened'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">
-                  مكتبة أكواد متعددة اللغات • شروحات بايثون والدوال • أوامر Termux والطرفية الآمنة
+                  {isAr 
+                    ? 'مكتبة أكواد متعددة اللغات • شروحات بايثون والدوال • أوامر Termux والطرفية الآمنة' 
+                    : 'Multi-Language Code Library • Deep Function Docs • Secure Termux & Terminal'}
                 </p>
               </div>
             </div>
 
-            {/* Mobile bookmarks button */}
-            <button
-              id="mobile-favorites-btn"
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`md:hidden p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
-                showFavoritesOnly
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
-                  : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-            >
-              <Bookmark className={`w-4 h-4 ${favoritesCount > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
-              <span>{favoritesCount}</span>
-            </button>
+            {/* Mobile Actions (Language Switch + Bookmarks) */}
+            <div className="flex items-center gap-2 md:hidden">
+              <button
+                id="mobile-language-switch-btn"
+                onClick={toggleLanguage}
+                className="p-2 rounded-lg border border-cyan-500/40 bg-cyan-950/40 text-cyan-300 text-xs font-bold flex items-center gap-1"
+                title={isAr ? 'Switch to English' : 'التحويل للعربية'}
+              >
+                <Languages className="w-4 h-4 text-cyan-400" />
+                <span>{isAr ? 'EN' : 'عربي'}</span>
+              </button>
+
+              <button
+                id="mobile-favorites-btn"
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={`p-2 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
+                  showFavoritesOnly
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50'
+                    : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white'
+                }`}
+              >
+                <Bookmark className={`w-4 h-4 ${favoritesCount > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
+                <span>{favoritesCount}</span>
+              </button>
+            </div>
           </div>
 
-          {/* Search bar & Desktop bookmarks */}
+          {/* Search bar & Desktop Language Switch + Bookmarks */}
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative flex-1 md:w-80">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            {/* Search Input */}
+            <div className="relative flex-1 md:w-72">
+              <Search className={`absolute ${isAr ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400`} />
               <input
                 id="global-search-input"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ابحث عن دالة، كود، أو ثغرة دفاعية..."
-                className="w-full bg-slate-900/90 border border-slate-800 focus:border-cyan-500/50 rounded-xl pr-9 pl-4 py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all"
+                placeholder={isAr ? "ابحث عن دالة، كود، أو ثغرة دفاعية..." : "Search function, code, or vulnerability..."}
+                className={`w-full bg-slate-900/90 border border-slate-800 focus:border-cyan-500/50 rounded-xl ${isAr ? 'pr-9 pl-4' : 'pl-9 pr-4'} py-2 text-sm text-slate-200 placeholder-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all`}
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-slate-300"
+                  className={`absolute ${isAr ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-slate-300`}
                 >
-                  مسح
+                  {isAr ? 'مسح' : 'Clear'}
                 </button>
               )}
             </div>
 
+            {/* Language Switch Button (Desktop) */}
+            <button
+              id="language-switch-btn"
+              onClick={toggleLanguage}
+              className="hidden md:flex items-center gap-1.5 px-3 py-2 rounded-xl border border-cyan-500/40 bg-cyan-950/40 hover:bg-cyan-900/50 text-cyan-300 text-xs font-bold transition-all shadow-sm"
+              title={isAr ? 'Switch to English' : 'التحويل للعربية'}
+            >
+              <Languages className="w-4 h-4 text-cyan-400" />
+              <span>{isAr ? 'English 🇺🇸' : 'العربية 🇸🇦'}</span>
+            </button>
+
+            {/* Desktop Bookmarks Button */}
             <button
               id="desktop-favorites-btn"
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
@@ -106,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({
               }`}
             >
               <Bookmark className={`w-4 h-4 ${favoritesCount > 0 ? 'fill-amber-400 text-amber-400' : ''}`} />
-              <span>المفضلة ({favoritesCount})</span>
+              <span>{isAr ? `المفضلة (${favoritesCount})` : `Bookmarks (${favoritesCount})`}</span>
             </button>
           </div>
         </div>
@@ -123,7 +154,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Code2 className="w-4 h-4" />
-            <span>مكتبة الأكواد (+400 نمط)</span>
+            <span>{isAr ? 'مكتبة الأكواد' : 'Code Library'}</span>
           </button>
 
           <button
@@ -136,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>موسوعة اللغات والدوال</span>
+            <span>{isAr ? 'موسوعة اللغات والدوال' : 'Languages & Functions'}</span>
           </button>
 
           <button
@@ -149,7 +180,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Bot className="w-4 h-4 text-cyan-400" />
-            <span>المساعد البرمجي (AI)</span>
+            <span>{isAr ? 'المساعد الذكي (AI)' : 'Smart AI (Universal)'}</span>
           </button>
 
           <button
@@ -162,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>مسار بايثون والدوال</span>
+            <span>{isAr ? 'مرجع بايثون والدوال' : 'Python Masterclass'}</span>
           </button>
 
           <button
@@ -175,7 +206,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
-            <span>أمن الدفاع و OWASP</span>
+            <span>{isAr ? 'أمن الدفاع و OWASP' : 'Defense & OWASP'}</span>
           </button>
 
           <button
@@ -188,7 +219,7 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Terminal className="w-4 h-4" />
-            <span>طرفية Termux والكمبيوتر</span>
+            <span>{isAr ? 'طرفية Termux والكمبيوتر' : 'Termux & Terminal'}</span>
           </button>
 
           <button
@@ -201,20 +232,20 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             <Binary className="w-4 h-4" />
-            <span>أداة الفحص والتشفير</span>
+            <span>{isAr ? 'أدوات الفحص والتشفير' : 'Security Tools'}</span>
           </button>
 
           <button
-            id="nav-tab-exporter"
-            onClick={() => { setActiveTab('exporter'); setShowFavoritesOnly(false); }}
+            id="nav-tab-lab"
+            onClick={() => { setActiveTab('lab'); setShowFavoritesOnly(false); }}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-              activeTab === 'exporter' && !showFavoritesOnly
+              activeTab === 'lab' && !showFavoritesOnly
                 ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/40 shadow-sm'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
             }`}
           >
-            <FolderArchive className="w-4 h-4 text-amber-400" />
-            <span>تصدير و GitHub</span>
+            <Crosshair className="w-4 h-4 text-emerald-400" />
+            <span>{isAr ? 'مختبر التحديات والمحاكاة' : 'Cyber Lab & Simulator'}</span>
           </button>
         </nav>
       </div>

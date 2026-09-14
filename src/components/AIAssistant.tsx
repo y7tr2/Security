@@ -14,6 +14,8 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
+import { queryCyberKnowledgeEngine } from '../utils/cyberKnowledgeEngine';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ChatMessage {
   id: string;
@@ -24,24 +26,36 @@ interface ChatMessage {
 }
 
 export const AIAssistant: React.FC = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const { isAr, language } = useLanguage();
+
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       id: 'welcome',
       sender: 'assistant',
-      text: `مرحباً بك! أنا **المساعد البرمجي والدفاعي السيبراني**. 
-أستطيع مساعدتك في:
-- 📖 **شرح أي لغة برمجة وأي دالة بالتفصيل**: ما تفعله، معاملاتها، وقيمتها المرجعة.
-- 🛡️ **الفحص الأمني للدفاع**: اكتشاف الثغرات في أكوادك وإعادة كتابتها بمعايير OWASP الآمنة.
-- ⚡ **كتابة أوامر وسكربتات**: حلول عملية جاهزة للتشغيل والنسخ بلغات Python، Bash، Go، Rust، JS وغيرها.
+      text: isAr
+        ? `مرحباً بك! أنا **مساعد الذكاء الاصطناعي الشامل**.
+أستطيع مساعدتك في الإجابة عن **أي سؤال أو استفسار تريده** سواء كان:
+- 🌐 **أسئلة عامة وعلمية وثقافية**: في الرياضيات، العلوم، التاريخ، الحياة اليومية، تنظيم الوقت، والفلسفة.
+- 📖 **شرح لغات البرمجة وتفكيك الدوال**: ما تفعله أي دالة، معاملاتها، وتفكيك الكود سطراً بسطر.
+- 🛡️ **الفحص الأمني والدفاع الرقمي**: اكتشاف الثغرات وتأمين الأكواد وفق معايير OWASP.
+- ⚡ **كتابة حلول وأكواد عملية**: بلغات Python، Bash، Go، Rust، JS وغيرها.
 
-كيف يمكنني مساعدتك برمجياً اليوم؟`,
-      time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
+كيف يمكنني مساعدتك اليوم؟ اسألني عن أي موضوع تريده!`
+        : `Welcome! I am your **Comprehensive AI Assistant**.
+I can answer questions on **ANY topic** you need:
+- 🌐 **General Knowledge & Science**: Mathematics, physics, history, daily productivity, reasoning, and advice.
+- 📖 **Programming & Function Deep-Dives**: Purpose, parameters, return types, and line-by-line breakdowns.
+- 🛡️ **Defensive Cybersecurity**: Detect vulnerabilities and rewrite code to OWASP standards.
+- ⚡ **Production Code & Scripts**: Python, Bash, Go, Rust, and JavaScript.
+
+How can I help you today? Ask me about anything!`,
+      time: new Date().toLocaleTimeString(isAr ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })
     }
   ]);
 
   const [inputQuery, setInputQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('عام');
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
   const [customKey, setCustomKey] = useState<string>('');
   const [showKeySettings, setShowKeySettings] = useState<boolean>(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -64,7 +78,7 @@ export const AIAssistant: React.FC = () => {
       id: `u-${Date.now()}`,
       sender: 'user',
       text: textToSend,
-      time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
+      time: new Date().toLocaleTimeString(isAr ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages(prev => [...prev, userMsg]);
@@ -72,40 +86,66 @@ export const AIAssistant: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/ai-assistant', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: textToSend,
-          languageContext: selectedLanguage !== 'عام' ? selectedLanguage : undefined,
-          customApiKey: customKey.trim() || undefined
-        })
-      });
+      let assistantReply = '';
+      let isFallbackMode = false;
 
-      if (!response.ok) {
-        throw new Error(`خطأ في استجابة الخادم: ${response.status}`);
+      try {
+        const response = await fetch('/api/ai-assistant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: textToSend,
+            languageContext: selectedLanguage !== 'all' ? selectedLanguage : undefined,
+            customApiKey: customKey.trim() || undefined,
+            userLanguage: language
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.reply && !data.useLocalEngine) {
+            assistantReply = data.reply;
+            isFallbackMode = !!data.isFallback;
+          }
+        }
+      } catch (networkErr) {
+        console.warn('Backend API unavailable, using built-in Cyber Knowledge Engine', networkErr);
       }
 
-      const data = await response.json();
+      // If no reply from server yet, query local Cyber Knowledge Engine with user's language
+      if (!assistantReply) {
+        assistantReply = queryCyberKnowledgeEngine(
+          textToSend, 
+          selectedLanguage !== 'all' ? selectedLanguage : undefined,
+          language
+        );
+        isFallbackMode = true;
+      }
 
       const assistantMsg: ChatMessage = {
         id: `a-${Date.now()}`,
         sender: 'assistant',
-        text: data.reply || 'تمت معالجة الطلب.',
-        time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-        isFallback: data.isFallback
+        text: assistantReply,
+        time: new Date().toLocaleTimeString(isAr ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' }),
+        isFallback: isFallbackMode
       };
 
       setMessages(prev => [...prev, assistantMsg]);
     } catch (err: any) {
       console.error(err);
+      const fallbackReply = queryCyberKnowledgeEngine(
+        textToSend, 
+        selectedLanguage !== 'all' ? selectedLanguage : undefined,
+        language
+      );
       setMessages(prev => [
         ...prev,
         {
-          id: `err-${Date.now()}`,
+          id: `a-${Date.now()}`,
           sender: 'assistant',
-          text: `⚠️ تعذر الاتصال بخادم المساعد الذكي (${err.message}). يرجى التحقق من اتصال الشبكة، أو إضافة مفتاح Gemini API في لوحة الإعدادات.`,
-          time: new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })
+          text: fallbackReply,
+          time: new Date().toLocaleTimeString(isAr ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' }),
+          isFallback: true
         }
       ]);
     } finally {
@@ -113,11 +153,18 @@ export const AIAssistant: React.FC = () => {
     }
   };
 
-  const quickPrompts = [
-    { label: 'شرح دالة reduce() بالتفصيل', query: 'اشرح لي دالة reduce في جافاسكريبت بالتفصيل: ما هي فكرتها، كيف يعمل المجمع (accumulator)، مع مثالين عمليين ونصيحة لتفادي الأخطاء.' },
-    { label: 'حماية كود Python من SQLi', query: 'كيف أكتب كود بايثون متصل بقاعدة بيانات PostgreSQL محمي 100% من ثغرات SQL Injection؟ وضح الفرق بين الكود المصاب والكود الآمن.' },
-    { label: 'سكربت Bash لمراقبة السيرفر', query: 'اكتب لي سكربت Bash احترافي يقوم بمراقبة استخدام المعالج CPU والذاكرة RAM ويرسل تحذيراً إذا تجاوز الاستهلاك 85% مع معايير set -euo pipefail.' },
-    { label: 'نظام الملكية في لغة Rust', query: 'اشرح لي مفهوم الملكية (Ownership) والإعارة (Borrowing) في لغة Rust ولماذا تمنع أخطاء الذاكرة نهائياً دون الحاجة لـ Garbage Collector؟' }
+  const quickPrompts = isAr ? [
+    { label: '🌌 ما هي نظرية النسبية لأينشتاين؟', query: 'اشرح لي نظرية النسبية الخاصة والعامة لألبرت أينشتاين بشكل مبسط وشيق، وما هي تطبيقاتها العملية في حياتنا اليومية؟' },
+    { label: '⏳ أفضل طريقة لتنظيم الوقت والمذاكرة', query: 'أعطني خطة عملية واستراتيجيات فعالة لتنظيم الوقت والمذاكرة وزيادة التركيز وتفادي التسويف والمشتتات.' },
+    { label: '📖 شرح دالة reduce() وتفكيكها', query: 'اشرح لي دالة reduce في جافاسكريبت بالتفصيل: ما هي فكرتها، كيف يعمل المجمع (accumulator)، مع تفكيك الكود سطراً بسطر.' },
+    { label: '🛡️ حماية كود Python من SQLi', query: 'كيف أكتب كود بايثون متصل بقاعدة بيانات PostgreSQL محمي 100% من ثغرات SQL Injection؟ وضح الفرق بين الكود المصاب والآمن.' },
+    { label: '💻 سكربت Bash لمراقبة السيرفر', query: 'اكتب لي سكربت Bash احترافي يقوم بمراقبة استخدام المعالج CPU والذاكرة RAM ويرسل تحذيراً إذا تجاوز الاستهلاك 85% مع معايير set -euo pipefail.' }
+  ] : [
+    { label: '🌌 Einstein\'s Theory of Relativity', query: 'Explain Albert Einstein\'s Special and General Relativity in simple, engaging terms, along with real-world applications.' },
+    { label: '⏳ Time Management Framework', query: 'Give me an actionable framework for daily time management, deep work focus, and beating procrastination.' },
+    { label: '📖 Explain reduce() in JavaScript', query: 'Explain JavaScript Array.prototype.reduce in detail: core concept, how the accumulator works, and provide a line-by-line breakdown.' },
+    { label: '🛡️ Harden Python against SQL Injection', query: 'How do I write Python database code completely immune to SQL Injection? Compare vulnerable vs parameterized queries.' },
+    { label: '💻 Bash Server Monitoring Script', query: 'Write a professional production Bash script to monitor CPU and memory usage with set -euo pipefail and alert on >85% threshold.' }
   ];
 
   const handleCopyText = (text: string, id: string) => {
@@ -133,14 +180,16 @@ export const AIAssistant: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-xs font-semibold">
-              <Bot className="w-3.5 h-3.5" /> المساعد البرمجي والدفاعي الذكي
+              <Bot className="w-3.5 h-3.5" /> 
+              <span>{isAr ? 'مساعد الذكاء الاصطناعي الشامل' : 'Universal AI Assistant'}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              مساعد الذكاء الاصطناعي لشرح اللغات والدوال وتأمين الأكواد
+              {isAr ? 'مساعد الذكاء الاصطناعي للإجابة عن أي سؤال والبرمجة والدفاع السيبراني' : 'Comprehensive AI Assistant: Universal Answers, Code & Cyber Defense'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              اسأل عن أي لغة برمجة، دالة معقدة، فحص أخطاء، أو كتابة شفرات أمنية دفاعية. الخادم مرتبط مباشرة بنموذج 
-              <code className="mx-1 px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono text-xs">gemini-3.8-flash</code>.
+              {isAr 
+                ? 'اطرح أي سؤال تريده في شتى مجالات المعرفة أو العلوم أو الحياة اليومية أو تفكيك دوال البرمجة وتأمين الأكواد. يعمل مباشرة بنموذج gemini-3.8-flash مع محرك معرفة فوري.'
+                : 'Ask anything across general knowledge, science, daily productivity, code mechanics, or cyber defense. Powered by Gemini Flash with seamless instant response.'}
             </p>
           </div>
 
@@ -149,8 +198,8 @@ export const AIAssistant: React.FC = () => {
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-xs font-medium self-start md:self-auto transition-colors"
           >
             <Key className="w-4 h-4 text-cyan-400" />
-            <span>إعدادات المفتاح الأمني</span>
-            {showKeySettings ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            <span>{isAr ? 'إعدادات المفتاح الأمني' : 'API Key Settings'}</span>
+            {showKeySettings ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-4 h-4" />}
           </button>
         </div>
 
@@ -160,17 +209,20 @@ export const AIAssistant: React.FC = () => {
             <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-start gap-3">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <span className="font-bold text-white">تنبيه أمان وخصوصية:</span>
+                <span className="font-bold text-white">
+                  {isAr ? 'تنبيه أمان وخصوصية:' : 'Security & Confidentiality Notice:'}
+                </span>
                 <p className="text-slate-300 leading-relaxed">
-                  لا تقم بمشاركة مفاتيح الـ API أو التوكنات السرية في المحادثة النصية لحماية حسابك من التسريب.
-                  منصة AI Studio تدير المفتاح بأمان وسرية تامة على الخادم عبر لوحة <strong>Settings &gt; Secrets</strong> تحت اسم <code className="text-cyan-300 font-mono">GEMINI_API_KEY</code>.
+                  {isAr 
+                    ? 'لا تقم بمشاركة مفاتيح الـ API السرية في المحادثات العامة. المنصة تدير المفتاح بأمان وسرية تامة على الخادم عبر لوحة Settings > Secrets تحت اسم GEMINI_API_KEY.'
+                    : 'Never paste sensitive keys in public rooms. Environment secrets are safely retained server-side via Settings > Secrets under GEMINI_API_KEY.'}
                 </p>
               </div>
             </div>
 
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
               <label className="block text-slate-300 font-bold">
-                (اختياري) تجربة مفتاح Gemini API مخصص لهذه الجلسة:
+                {isAr ? '(اختياري) تجربة مفتاح Gemini API مخصص لهذه الجلسة:' : '(Optional) Session-specific Gemini API Key override:'}
               </label>
               <div className="flex gap-2">
                 <input
@@ -186,13 +238,10 @@ export const AIAssistant: React.FC = () => {
                     onClick={() => setCustomKey('')}
                     className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs"
                   >
-                    مسح
+                    {isAr ? 'مسح' : 'Clear'}
                   </button>
                 )}
               </div>
-              <p className="text-[11px] text-slate-500">
-                المفتاح يُرسل إلى خادم التطبيق الداخلي فقط لمعالجة استفساراتك ولا يُسجل أو يُشارك خارج التطبيق.
-              </p>
             </div>
           </div>
         )}
@@ -202,7 +251,7 @@ export const AIAssistant: React.FC = () => {
       <div className="space-y-2">
         <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>نماذج أسئلة سريعة (اضغط للتجربة الفورية):</span>
+          <span>{isAr ? 'نماذج أسئلة سريعة (اضغط للتجربة الفورية):' : 'Quick Prompt Presets (Click to run):'}</span>
         </span>
         <div className="flex flex-wrap gap-2">
           {quickPrompts.map((p, idx) => (
@@ -210,7 +259,7 @@ export const AIAssistant: React.FC = () => {
               key={idx}
               onClick={() => handleSendMessage(p.query)}
               disabled={isLoading}
-              className="text-xs px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/30 text-slate-300 rounded-xl transition-all text-right disabled:opacity-50"
+              className={`text-xs px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-cyan-500/30 text-slate-300 rounded-xl transition-all ${isAr ? 'text-right' : 'text-left'} disabled:opacity-50`}
             >
               {p.label}
             </button>
@@ -224,84 +273,92 @@ export const AIAssistant: React.FC = () => {
         <div className="bg-slate-950/80 px-5 py-3 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-bold text-white">المساعد البرمجي متصل</span>
+            <span className="font-bold text-white">{isAr ? 'المساعد الذكي متصل ومستعد لأي سؤال' : 'Universal Assistant Online & Ready'}</span>
             <span className="text-slate-500 hidden sm:inline">• Gemini 3.8 Flash</span>
           </div>
 
-          {/* Context Language Filter */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">سياق اللغة:</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400 hidden sm:inline">{isAr ? 'تخصيص السياق:' : 'Context:'}</span>
             <select
               value={selectedLanguage}
               onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="bg-slate-900 text-slate-200 border border-slate-800 rounded-lg px-2.5 py-1 text-xs outline-none focus:border-cyan-500"
+              className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-300 outline-none focus:border-cyan-500/50"
             >
-              <option value="عام">عام (كافة اللغات)</option>
+              <option value="all">{isAr ? 'عام (كافة اللغات)' : 'General (All)'}</option>
               <option value="Python">Python</option>
-              <option value="JavaScript / TypeScript">JavaScript / TypeScript</option>
-              <option value="Bash / Linux">Bash / Linux</option>
-              <option value="Go">Go (Golang)</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="Go">Go</option>
               <option value="Rust">Rust</option>
-              <option value="C / C++">C / C++</option>
-              <option value="SQL">SQL</option>
-              <option value="Docker">Docker</option>
+              <option value="Bash">Bash / Linux</option>
+              <option value="Security">Cyber Security & OWASP</option>
             </select>
           </div>
         </div>
 
-        {/* Message Feed */}
-        <div className="flex-1 p-5 overflow-y-auto space-y-4">
-          {messages.map((msg) => {
-            const isUser = msg.sender === 'user';
-            return (
-              <div 
-                key={msg.id} 
-                className={`flex gap-3 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+        {/* Message Thread */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex gap-3 max-w-4xl ${msg.sender === 'user' ? (isAr ? 'mr-auto flex-row-reverse' : 'ml-auto flex-row-reverse') : (isAr ? 'ml-auto' : 'mr-auto')}`}
+            >
+              <div
+                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                  msg.sender === 'user'
+                    ? 'bg-cyan-600 text-white shadow-md'
+                    : 'bg-slate-800 text-cyan-400 border border-cyan-500/30'
+                }`}
               >
-                {/* Avatar */}
-                <div className={`w-8 h-8 rounded-xl shrink-0 flex items-center justify-center text-xs font-bold ${
-                  isUser 
-                    ? 'bg-cyan-600 text-white' 
-                    : 'bg-slate-800 text-cyan-400 border border-slate-700'
-                }`}>
-                  {isUser ? 'أنت' : <Bot className="w-4 h-4" />}
-                </div>
+                {msg.sender === 'user' ? 'U' : <Bot className="w-4 h-4" />}
+              </div>
 
-                {/* Message Bubble */}
-                <div className={`max-w-[85%] rounded-2xl p-4 text-xs sm:text-sm space-y-2 relative group ${
-                  isUser
-                    ? 'bg-cyan-600 text-white rounded-tl-none'
-                    : 'bg-slate-950 border border-slate-800 text-slate-200 rounded-tr-none'
-                }`}>
-                  <div className="whitespace-pre-wrap leading-relaxed">
-                    {msg.text}
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4 pt-1 border-t border-white/10 text-[10px] text-slate-400">
-                    <span>{msg.time}</span>
-                    {!isUser && (
-                      <button
-                        onClick={() => handleCopyText(msg.text, msg.id)}
-                        className="opacity-60 hover:opacity-100 flex items-center gap-1 text-cyan-300"
-                      >
-                        {copiedId === msg.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                        <span>{copiedId === msg.id ? 'تم النسخ' : 'نسخ النص'}</span>
-                      </button>
+              <div
+                className={`rounded-2xl p-4 sm:p-5 text-xs sm:text-sm leading-relaxed space-y-2 relative group ${
+                  msg.sender === 'user'
+                    ? 'bg-cyan-950/60 border border-cyan-500/40 text-cyan-100 max-w-xl'
+                    : 'bg-slate-950 border border-slate-800/90 text-slate-200 w-full'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2 border-b border-slate-800/60 pb-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xs text-slate-300">
+                      {msg.sender === 'user' ? (isAr ? 'أنت' : 'You') : (isAr ? 'المساعد الذكي الشامل' : 'Universal AI Assistant')}
+                    </span>
+                    {msg.isFallback && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                        {isAr ? 'محرك المعرفة المدمج' : 'Offline Knowledge Engine'}
+                      </span>
                     )}
                   </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-slate-500">{msg.time}</span>
+                    <button
+                      onClick={() => handleCopyText(msg.text, msg.id)}
+                      className="text-slate-500 hover:text-slate-300 p-1 transition-colors"
+                      title={isAr ? 'نسخ الرسالة' : 'Copy message'}
+                    >
+                      {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Body with formatting */}
+                <div className="whitespace-pre-wrap font-sans select-text space-y-2">
+                  {msg.text}
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
 
           {isLoading && (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-slate-800 text-cyan-400 border border-slate-700 flex items-center justify-center">
-                <Bot className="w-4 h-4" />
+            <div className={`flex gap-3 max-w-xl ${isAr ? 'ml-auto' : 'mr-auto'}`}>
+              <div className="w-8 h-8 rounded-xl bg-slate-800 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0 animate-spin">
+                <RefreshCw className="w-4 h-4" />
               </div>
-              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 flex items-center gap-2 text-xs text-slate-400">
-                <RefreshCw className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
-                <span>المساعد يحلل السؤال ويجهز الشرح البرمجي الآمن...</span>
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-xs text-slate-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                <span>{isAr ? 'جارِ معالجة وتوليد الإجابة بدقة عبر الذكاء الاصطناعي...' : 'Generating detailed response via AI...'}</span>
               </div>
             </div>
           )}
@@ -309,27 +366,31 @@ export const AIAssistant: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Form */}
-        <div className="p-4 bg-slate-950 border-t border-slate-800">
-          <form 
-            onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
+        {/* Input Bar */}
+        <div className="p-3 sm:p-4 bg-slate-950 border-t border-slate-800">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
             className="flex gap-2"
           >
             <input
               type="text"
               value={inputQuery}
               onChange={(e) => setInputQuery(e.target.value)}
-              placeholder="اكتب سؤالك أو الكود الذي تريد شرحه أو تحسين أمانه..."
+              placeholder={isAr ? "اسأل عن أي شيء... سؤال عام، مفهوم علمي، تنظيم الوقت، دالة برمجية، أو فحص أمني..." : "Ask about anything... general topic, science, time management, coding, or cybersecurity..."}
+              className={`flex-1 bg-slate-900 border border-slate-800 focus:border-cyan-500/60 rounded-2xl px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 outline-none focus:ring-2 focus:ring-cyan-500/20 transition-all`}
               disabled={isLoading}
-              className="flex-1 bg-slate-900 border border-slate-800 focus:border-cyan-500/50 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-200 outline-none placeholder-slate-500"
             />
+
             <button
               type="submit"
               disabled={!inputQuery.trim() || isLoading}
-              className="px-5 py-3 bg-cyan-600 hover:bg-cyan-500 disabled:bg-slate-800 disabled:text-slate-600 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-colors shadow-sm"
+              className="px-5 py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 disabled:hover:bg-cyan-600 text-white font-bold text-xs sm:text-sm flex items-center gap-2 transition-all shadow-md shadow-cyan-900/30"
             >
-              <span>إرسال</span>
-              <Send className="w-4 h-4 rotate-180" />
+              <span>{isAr ? 'إرسال' : 'Send'}</span>
+              <Send className="w-4 h-4" />
             </button>
           </form>
         </div>
