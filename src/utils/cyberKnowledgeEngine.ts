@@ -228,7 +228,203 @@ ${foundVuln.defensiveCode.code}
 *طريقة الحماية:* ${foundVuln.defensiveCode.explanation}`;
   }
 
-  // 7. Search in Termux Commands
+  // 7. Dedicated Network API & Function Generator (With Links OR 100% Native Without Links)
+  const isAskingWithoutLink = clean.includes('بدون رابط') || 
+    clean.includes('مو بل رابط') || 
+    clean.includes('بدون روابط') || 
+    clean.includes('بدون نت') || 
+    clean.includes('محلي') || 
+    clean.includes('offline') || 
+    clean.includes('بدون api') || 
+    clean.includes('ذاتي') ||
+    clean.includes('without link') ||
+    clean.includes('without url');
+
+  if (
+    isAskingWithoutLink ||
+    (clean.includes('api') && (clean.includes('شبك') || clean.includes('ip') || clean.includes('نت'))) ||
+    clean.includes('api الشبكه') ||
+    clean.includes('api شبكتي') ||
+    clean.includes('عنوان ip') ||
+    (clean.includes('رابط') && clean.includes('دال')) ||
+    clean.includes('سويلي كود')
+  ) {
+    if (isEn) {
+      return `### ⚡ Code Generator: Network & System Operations (With or Without Links)
+
+Here are both approaches: **Pure Offline/Native (Zero External URLs)** and **Web API-based**:
+
+#### 💎 Option A: 100% Pure Native Code (NO LINKS, NO EXTERNAL API, WORKS OFFLINE)
+\`\`\`python
+import socket
+import os
+
+def get_local_network_ip():
+    """
+    Finds your actual local network IP using low-level OS sockets.
+    Runs 100% offline, requires NO internet, and contacts NO external URL.
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Connect to a dummy UDP route to determine active routing interface (doesn't send packets)
+        sock.connect(('10.255.255.255', 1))
+        local_ip = sock.getsockname()[0]
+    except Exception:
+        local_ip = socket.gethostbyname(socket.gethostname())
+    finally:
+        sock.close()
+        
+    hostname = socket.gethostname()
+    return {
+        "hostname": hostname,
+        "local_network_ip": local_ip
+    }
+
+if __name__ == "__main__":
+    result = get_local_network_ip()
+    print("Device Hostname:", result["hostname"])
+    print("Local Network IP:", result["local_network_ip"])
+\`\`\`
+
+#### 📱 Native Linux / Termux Commands (NO Links / Offline):
+\`\`\`bash
+# 1. Show all local IPv4 interface addresses
+ip -4 addr show
+
+# 2. Show active network IP directly
+hostname -I
+
+# 3. View connected local subnet devices (ARP table)
+cat /proc/net/arp
+\`\`\`
+
+---
+
+#### 🌐 Option B: Public IP & ISP Lookup (Via External API Link)
+\`\`\`python
+import requests
+
+def get_public_ip_info():
+    # Construct base URL and query safely
+    url = "https://ipinfo.io/json"
+    headers = {"Accept": "application/json"}
+    
+    response = requests.get(url, headers=headers, timeout=5)
+    response.raise_for_status()
+    data = response.json()
+    
+    return {
+        "public_ip": data.get("ip"),
+        "city": data.get("city"),
+        "isp": data.get("org")
+    }
+
+if __name__ == "__main__":
+    print(get_public_ip_info())
+\`\`\`
+
+#### 📖 Execution Instructions:
+- **No-Link Approach:** Runs instantly using Python standard library \`socket\` with no packages to install.
+- **Link-based Approach:** Queries public DNS/ISP records. Requires \`pip install requests\`.`;
+    }
+
+    return `### ⚡ توليد الأكواد والدوال البرمجية (سواء برابط أو بدون أي رابط إطلاقاً)
+
+إليك الطريقتين بالكامل: **أولاً: كود ذاتي محلي 100% (بدون روابط وبدون إنترنت)**، و**ثانياً: كود عبر رابط API**:
+
+---
+
+#### 💎 الخيار الأول: كود ذاتي محلي (بدون أي رابط أو سيرفر خارجي إطلاقاً)
+هذا الكود مبني بالكامل على مكتبة المقابس القياسية \`socket\` المدمجة في بايثون، يعمل محلياً في جهازك حتى بدون إنترنت وبدون أي رابط:
+
+\`\`\`python
+import socket
+
+def get_my_local_ip_native():
+    """
+    دالة ذاتية بالكامل لاستخراج آي بي الشبكة واسم الجهاز محلياً.
+    لا تستخدم أي رابط إنترنت ولا تتصل بأي سيرفر خارجي.
+    """
+    # إنشاء مقبس شبكة من نوع UDP
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # استكشاف البوابة الافتراضية النشطة محلياً دون إرسال بيانات
+        s.connect(('10.255.255.255', 1))
+        local_ip = s.getsockname()[0]
+    except Exception:
+        local_ip = socket.gethostbyname(socket.gethostname())
+    finally:
+        s.close()
+        
+    return {
+        "device_name": socket.gethostname(),
+        "local_network_ip": local_ip
+    }
+
+# تشغيل الدالة وطباعة النتيجة:
+if __name__ == "__main__":
+    net = get_my_local_ip_native()
+    print("اسم جهازك:", net["device_name"])
+    print("آي بي الشبكة المحلية (IP):", net["local_network_ip"])
+\`\`\`
+
+#### 📱 أوامر Termux للجوال (بدون أي رابط أو إنترنت - محلي 100%):
+\`\`\`bash
+# 1. إظهار كافة عناوين الـ IP لبطاقات الشبكة والواي فاي
+ip -4 addr show
+\`\`\`
+\`\`\`bash
+# 2. إظهار عنوان IP الشبكة الحالية مباشرة برقم واحد
+hostname -I
+\`\`\`
+\`\`\`bash
+# 3. معرفة الأجهزة المتصلة معك بنفس شبكة الراوتر محلياً (جدول ARP)
+cat /proc/net/arp
+\`\`\`
+
+---
+
+#### 🌐 الخيار الثاني: كود عبر رابط API خارجي (لمعرفة الآي بي العام والموقع والمزود)
+\`\`\`python
+import requests
+
+def get_public_ip_with_api(token=None):
+    """
+    دالة لجلب الآي بي العام الخارجي ومزود الإنترنت (ISP) عبر رابط API.
+    """
+    # 1. بناء الرابط الآمن
+    url = "https://ipinfo.io/json"
+    params = {}
+    if token:
+        params["token"] = token
+        
+    res = requests.get(url, params=params, timeout=5)
+    res.raise_for_status()
+    data = res.json()
+    
+    return {
+        "ip": data.get("ip"),
+        "city": data.get("city"),
+        "isp": data.get("org")
+    }
+
+if __name__ == "__main__":
+    print(get_public_ip_with_api())
+\`\`\`
+
+---
+
+#### 📖 شرح الفروقات وطريقة التشغيل حبة حبة على الجوال (Termux):
+1. **الفرق الأساسي:**
+   - **الكود الذاتي (بدون روابط):** يعمل محلياً فوراً بدون إنترنت عبر المقابس \`socket\`، ويكشف آي بي جهازك داخل شبكة الواي فاي أو شبكة البيانات.
+   - **كود الرابط (API):** يرسل طلب للإنترنت لمعرفة كيف يراك العالم الخارجي ومزود الخدمة (STC, Zain, Mobily...).
+2. **طريقة التشغيل في Termux:**
+   - احفظ الكود: \`nano mynet.py\`
+   - الصق الكود ثم اضغط \`CTRL + O\` ثم \`Enter\` ثم \`CTRL + X\`.
+   - شغّله فوراً: \`python mynet.py\``;
+  }
+
+  // 8. Search in Termux Commands
   const foundCmd = termuxCommandsList.find(c => 
     clean.includes(c.command.toLowerCase()) ||
     clean.includes(c.title.toLowerCase())

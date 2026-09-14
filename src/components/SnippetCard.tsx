@@ -8,7 +8,8 @@ import {
   ChevronUp, 
   Download, 
   Terminal,
-  Cpu
+  Cpu,
+  Sparkles
 } from 'lucide-react';
 import { Snippet } from '../types';
 import { useLanguage } from '../context/LanguageContext';
@@ -26,7 +27,10 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
 }) => {
   const { isAr } = useLanguage();
   const [copied, setCopied] = useState(false);
+  const [copiedClean, setCopiedClean] = useState(false);
+  const [copiedLineIdx, setCopiedLineIdx] = useState<number | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLineByLine, setShowLineByLine] = useState(false);
 
   const handleCopy = async () => {
     try {
@@ -35,6 +39,31 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
+    }
+  };
+
+  const handleCopyCleanCode = async () => {
+    try {
+      // Remove pure comment lines to give clean pure code
+      const cleanCode = snippet.code
+        .split('\n')
+        .filter(l => !l.trim().startsWith('#') && !l.trim().startsWith('//') && !l.trim().startsWith('--'))
+        .join('\n');
+      await navigator.clipboard.writeText(cleanCode);
+      setCopiedClean(true);
+      setTimeout(() => setCopiedClean(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy clean code', err);
+    }
+  };
+
+  const handleCopyLine = async (line: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(line.trim());
+      setCopiedLineIdx(index);
+      setTimeout(() => setCopiedLineIdx(null), 1500);
+    } catch (err) {
+      console.error('Failed to copy line', err);
     }
   };
 
@@ -165,7 +194,8 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
 
       {/* Code Container */}
       <div className="relative bg-slate-950 p-4 font-mono text-xs overflow-x-auto border-b border-slate-800/80">
-        <div className={`absolute top-2.5 ${isAr ? 'left-2.5' : 'right-2.5'} z-10`}>
+        <div className={`flex flex-wrap items-center gap-2 mb-3 ${isAr ? 'justify-start' : 'justify-end'}`}>
+          {/* Main Copy Button */}
           <button
             id={`copy-btn-${snippet.id}`}
             onClick={handleCopy}
@@ -183,16 +213,89 @@ export const SnippetCard: React.FC<SnippetCardProps> = ({
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>{isAr ? 'نسخ الكود' : 'Copy Code'}</span>
+                <span>{isAr ? 'نسخ الكود كاملاً' : 'Copy Code'}</span>
               </>
             )}
           </button>
+
+          {/* Clean Code (Without Comments / Fluff) */}
+          <button
+            onClick={handleCopyCleanCode}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              copiedClean
+                ? 'bg-emerald-600 text-white border-emerald-500'
+                : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border-amber-500/30'
+            }`}
+            title={isAr ? 'نسخ الكود البرمجي الصافي بدون أي شروحات أو تعليقات' : 'Copy pure code without comments'}
+          >
+            {copiedClean ? <Check className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
+            <span>{copiedClean ? (isAr ? 'تم نسخ الصافي!' : 'Clean Copied!') : (isAr ? 'نسخ صافي (بدون شرح)' : 'Pure Code Only')}</span>
+          </button>
+
+          {/* Toggle Line-by-Line (حبة حبة) Mode */}
+          <button
+            onClick={() => setShowLineByLine(!showLineByLine)}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+              showLineByLine
+                ? 'bg-cyan-600 text-white border-cyan-500'
+                : 'bg-slate-900 hover:bg-slate-800 text-cyan-300 border-cyan-500/30'
+            }`}
+          >
+            <span>⚡ {showLineByLine ? (isAr ? 'إخفاء الأسطر' : 'Hide Lines') : (isAr ? 'نسخ حبة حبة (سطر بسطر)' : 'Line-by-Line Mode')}</span>
+          </button>
         </div>
 
-        {/* Code Content */}
-        <pre className="text-slate-300 pt-8 pb-2 leading-relaxed select-all" dir="ltr">
-          <code>{snippet.code}</code>
-        </pre>
+        {/* Code Content View */}
+        {!showLineByLine ? (
+          <pre className="text-slate-300 pt-2 pb-2 leading-relaxed select-all" dir="ltr">
+            <code>{snippet.code}</code>
+          </pre>
+        ) : (
+          <div className="pt-2 pb-2 space-y-1 bg-slate-950/80 rounded-xl p-2 border border-slate-800" dir="ltr">
+            <div className="text-[10px] text-cyan-400 font-sans pb-1 px-1 border-b border-slate-800/80 flex items-center justify-between">
+              <span>{isAr ? 'اضغط على أي سطر لنسخه منفرداً حبة حبة بدون شروحات:' : 'Click any line to copy it directly:'}</span>
+              <span className="text-slate-500">{snippet.code.split('\n').length} lines</span>
+            </div>
+            {snippet.code.split('\n').map((line, idx) => {
+              const isComment = line.trim().startsWith('#') || line.trim().startsWith('//') || line.trim().startsWith('--');
+              if (!line.trim()) return <div key={idx} className="h-2" />;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleCopyLine(line, idx)}
+                  className={`group flex items-center justify-between gap-3 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                    copiedLineIdx === idx
+                      ? 'bg-emerald-950/80 border border-emerald-500/50'
+                      : 'hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <span className="text-[10px] text-slate-600 select-none w-5 text-right font-mono shrink-0">
+                      {idx + 1}
+                    </span>
+                    <code className={`truncate text-xs ${isComment ? 'text-slate-500 italic' : 'text-cyan-200'}`}>
+                      {line}
+                    </code>
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopyLine(line, idx);
+                    }}
+                    className={`px-2 py-0.5 rounded text-[10px] shrink-0 font-sans border transition-all ${
+                      copiedLineIdx === idx
+                        ? 'bg-emerald-600 text-white border-emerald-500'
+                        : 'bg-slate-800 group-hover:bg-slate-700 text-slate-300 border-slate-700'
+                    }`}
+                  >
+                    {copiedLineIdx === idx ? (isAr ? 'منسوخ!' : 'Copied!') : (isAr ? 'نسخ السطر' : 'Copy')}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Footer / Expandable Explanation */}

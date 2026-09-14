@@ -25,6 +25,138 @@ interface ChatMessage {
   isFallback?: boolean;
 }
 
+interface CodeBlockViewerProps {
+  language: string;
+  code: string;
+  isAr: boolean;
+}
+
+const CodeBlockViewer: React.FC<CodeBlockViewerProps> = ({ language, code, isAr }) => {
+  const [copiedFull, setCopiedFull] = useState(false);
+  const [copiedClean, setCopiedClean] = useState(false);
+  const [copiedLineIdx, setCopiedLineIdx] = useState<number | null>(null);
+  const [showLineByLine, setShowLineByLine] = useState(false);
+
+  const handleCopyFull = () => {
+    navigator.clipboard.writeText(code.trim());
+    setCopiedFull(true);
+    setTimeout(() => setCopiedFull(false), 2000);
+  };
+
+  const handleCopyClean = () => {
+    const cleanLines = code
+      .split('\n')
+      .filter(l => !l.trim().startsWith('#') && !l.trim().startsWith('//') && !l.trim().startsWith('--'))
+      .join('\n');
+    navigator.clipboard.writeText(cleanLines.trim());
+    setCopiedClean(true);
+    setTimeout(() => setCopiedClean(false), 2000);
+  };
+
+  const handleCopyLine = (line: string, index: number) => {
+    navigator.clipboard.writeText(line.trim());
+    setCopiedLineIdx(index);
+    setTimeout(() => setCopiedLineIdx(null), 1500);
+  };
+
+  return (
+    <div className="my-3 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 font-mono text-xs shadow-md">
+      {/* Action Header */}
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 bg-slate-900/90 border-b border-slate-800">
+        <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">
+          {language || 'code'}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={handleCopyFull}
+            className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1 border ${
+              copiedFull
+                ? 'bg-emerald-600 text-white border-emerald-500'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+            }`}
+          >
+            {copiedFull ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            <span>{copiedFull ? (isAr ? 'تم النسخ!' : 'Copied!') : (isAr ? 'نسخ الكود' : 'Copy')}</span>
+          </button>
+          <button
+            onClick={handleCopyClean}
+            className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1 border ${
+              copiedClean
+                ? 'bg-emerald-600 text-white border-emerald-500'
+                : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border-amber-500/30'
+            }`}
+            title={isAr ? 'نسخ كود صافي بدون أي شروحات أو تعليقات' : 'Copy pure code'}
+          >
+            {copiedClean ? <Check className="w-3 h-3" /> : <Sparkles className="w-3 h-3" />}
+            <span>{copiedClean ? (isAr ? 'منسوخ صافي!' : 'Clean!') : (isAr ? 'نسخ صافي (بدون شرح)' : 'Clean Code')}</span>
+          </button>
+          <button
+            onClick={() => setShowLineByLine(!showLineByLine)}
+            className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all border ${
+              showLineByLine
+                ? 'bg-cyan-600 text-white border-cyan-500'
+                : 'bg-slate-900 hover:bg-slate-800 text-cyan-300 border-cyan-500/30'
+            }`}
+          >
+            <span>⚡ {showLineByLine ? (isAr ? 'إخفاء الأسطر' : 'Hide') : (isAr ? 'نسخ حبة حبة' : 'Line-by-Line')}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Code body */}
+      {!showLineByLine ? (
+        <pre className="p-3 text-slate-200 overflow-x-auto leading-relaxed select-all" dir="ltr">
+          <code>{code}</code>
+        </pre>
+      ) : (
+        <div className="p-2 space-y-1 bg-slate-950/90" dir="ltr">
+          <div className="text-[10px] text-cyan-400 font-sans pb-1 px-1 border-b border-slate-800 flex items-center justify-between">
+            <span>{isAr ? 'اضغط على أي سطر لنسخه منفرداً حبة حبة:' : 'Click any line to copy individually:'}</span>
+            <span className="text-slate-500">{code.split('\n').length} lines</span>
+          </div>
+          {code.split('\n').map((line, idx) => {
+            if (!line.trim()) return <div key={idx} className="h-1.5" />;
+            const isComment = line.trim().startsWith('#') || line.trim().startsWith('//') || line.trim().startsWith('--');
+            return (
+              <div
+                key={idx}
+                onClick={() => handleCopyLine(line, idx)}
+                className={`flex items-center justify-between gap-2 p-1.5 rounded-lg cursor-pointer transition-colors ${
+                  copiedLineIdx === idx
+                    ? 'bg-emerald-950/80 border border-emerald-500/50'
+                    : 'hover:bg-slate-900 border border-transparent hover:border-slate-800'
+                }`}
+              >
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <span className="text-[10px] text-slate-600 select-none w-5 text-right font-mono shrink-0">
+                    {idx + 1}
+                  </span>
+                  <code className={`truncate text-xs ${isComment ? 'text-slate-500 italic' : 'text-cyan-200'}`}>
+                    {line}
+                  </code>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyLine(line, idx);
+                  }}
+                  className={`px-2 py-0.5 rounded text-[10px] font-sans border shrink-0 transition-all ${
+                    copiedLineIdx === idx
+                      ? 'bg-emerald-600 text-white border-emerald-500'
+                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                  }`}
+                >
+                  {copiedLineIdx === idx ? (isAr ? 'منسوخ!' : 'Copied!') : (isAr ? 'نسخ' : 'Copy')}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const AIAssistant: React.FC = () => {
   const { isAr, language } = useLanguage();
 
@@ -154,18 +286,44 @@ How can I help you today? Ask me about anything!`,
   };
 
   const quickPrompts = isAr ? [
-    { label: '🌌 ما هي نظرية النسبية لأينشتاين؟', query: 'اشرح لي نظرية النسبية الخاصة والعامة لألبرت أينشتاين بشكل مبسط وشيق، وما هي تطبيقاتها العملية في حياتنا اليومية؟' },
-    { label: '⏳ أفضل طريقة لتنظيم الوقت والمذاكرة', query: 'أعطني خطة عملية واستراتيجيات فعالة لتنظيم الوقت والمذاكرة وزيادة التركيز وتفادي التسويف والمشتتات.' },
-    { label: '📖 شرح دالة reduce() وتفكيكها', query: 'اشرح لي دالة reduce في جافاسكريبت بالتفصيل: ما هي فكرتها، كيف يعمل المجمع (accumulator)، مع تفكيك الكود سطراً بسطر.' },
-    { label: '🛡️ حماية كود Python من SQLi', query: 'كيف أكتب كود بايثون متصل بقاعدة بيانات PostgreSQL محمي 100% من ثغرات SQL Injection؟ وضح الفرق بين الكود المصاب والآمن.' },
-    { label: '💻 سكربت Bash لمراقبة السيرفر', query: 'اكتب لي سكربت Bash احترافي يقوم بمراقبة استخدام المعالج CPU والذاكرة RAM ويرسل تحذيراً إذا تجاوز الاستهلاك 85% مع معايير set -euo pipefail.' }
+    { label: '💎 كود محلي ذاتي للشبكة (بدون أي رابط أو نت)', query: 'أعطني كود بايثون وترموكس لفحص الشبكة واستخراج الـ IP والبيانات محلياً وبشكل ذاتي بدون أي رابط أو API خارجي (Pure Native Socket)' },
+    { label: '🌐 سويلي كود API الشبكة والـ IP', query: 'سويلي كود بايثون وجافاسكريبت يعطيني API الشبكة حقتي والـ IP مع الدالة وطريقة صنع الرابط والتشغيل على الجوال ونسخ حبة حبة' },
+    { label: '🔗 دالة صنع روابط الـ API والمعاملات', query: 'اشرح لي دالة بناء الروابط والمعاملات الآمنة URLSearchParams مع كود جاهز واستخراج البيانات' },
+    { label: '📱 أوامر Termux للجوال حبة حبة', query: 'أعطني أهم أوامر وسكربتات Termux للجوال لتشغيل بايثون وفحص الشبكات خطوة بخطوة ونسخ حبة حبة' },
+    { label: '🛡️ حماية كود Python من ثغرات الحقن', query: 'كيف أكتب كود بايثون متصل بقاعدة بيانات PostgreSQL محمي 100% من ثغرات SQL Injection؟ وضح الفرق بين الكود المصاب والآمن.' }
   ] : [
-    { label: '🌌 Einstein\'s Theory of Relativity', query: 'Explain Albert Einstein\'s Special and General Relativity in simple, engaging terms, along with real-world applications.' },
-    { label: '⏳ Time Management Framework', query: 'Give me an actionable framework for daily time management, deep work focus, and beating procrastination.' },
-    { label: '📖 Explain reduce() in JavaScript', query: 'Explain JavaScript Array.prototype.reduce in detail: core concept, how the accumulator works, and provide a line-by-line breakdown.' },
-    { label: '🛡️ Harden Python against SQL Injection', query: 'How do I write Python database code completely immune to SQL Injection? Compare vulnerable vs parameterized queries.' },
-    { label: '💻 Bash Server Monitoring Script', query: 'Write a professional production Bash script to monitor CPU and memory usage with set -euo pipefail and alert on >85% threshold.' }
+    { label: '💎 Native Offline Network Code (Zero URLs)', query: 'Give me 100% native Python and Termux code to inspect network IP and interfaces completely offline without contacting any external URL.' },
+    { label: '🌐 Network API & Public IP Script', query: 'Generate Python & JavaScript code to fetch my network public IP & ISP info with functions, safe URL creation, and Termux execution.' },
+    { label: '🔗 Build URL & API Query Params', query: 'Explain how to safely construct API endpoints and query parameters with clean code examples.' },
+    { label: '📱 Mobile Termux Commands', query: 'Give me essential Termux mobile terminal commands for Python and networking step by step.' },
+    { label: '🛡️ Harden Python against SQLi', query: 'How do I write Python database code completely immune to SQL Injection? Compare vulnerable vs parameterized queries.' }
   ];
+
+  const renderMessageContent = (content: string) => {
+    // Check if message contains code blocks
+    const codeBlockRegex = /(```[\s\S]*?```)/g;
+    const parts = content.split(codeBlockRegex);
+
+    return (
+      <div className="space-y-2">
+        {parts.map((part, idx) => {
+          if (part.startsWith('```') && part.endsWith('```')) {
+            const lines = part.slice(3, -3).trim().split('\n');
+            const firstLine = lines[0].trim();
+            const hasLang = /^[a-zA-Z0-9_-]+$/.test(firstLine);
+            const lang = hasLang ? firstLine : '';
+            const code = (hasLang ? lines.slice(1) : lines).join('\n');
+            return <CodeBlockViewer key={idx} language={lang} code={code} isAr={isAr} />;
+          }
+          return (
+            <div key={idx} className="whitespace-pre-wrap font-sans select-text leading-relaxed">
+              {part}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const handleCopyText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -344,9 +502,7 @@ How can I help you today? Ask me about anything!`,
                 </div>
 
                 {/* Body with formatting */}
-                <div className="whitespace-pre-wrap font-sans select-text space-y-2">
-                  {msg.text}
-                </div>
+                {renderMessageContent(msg.text)}
               </div>
             </div>
           ))}

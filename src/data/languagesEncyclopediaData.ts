@@ -792,5 +792,157 @@ EXECUTE get_user_by_role('admin', 'ACTIVE');`,
     securityTipEn: 'Never concatenate strings or format templates into SQL commands; parameterize all variable bindings.',
     commonMistake: 'استبدال المعاملات بتعقيم يدوي للنصوص (Sanitization) عبر استبدال الفواصل؛ المهاجمون يجدون دائماً ثغرات في الفلاتر اليدوية.',
     commonMistakeEn: 'Relying on custom regex or string-replace filters instead of native database parameterized queries.'
+  },
+
+  // 11. JAVASCRIPT / TYPESCRIPT: fetch() & API Calling
+  {
+    id: 'js-fn-fetch',
+    name: 'fetch(url, [options])',
+    language: 'JavaScript',
+    languageId: 'javascript',
+    category: 'network',
+    categoryLabel: 'الشبكات والـ APIs',
+    categoryLabelEn: 'Network & APIs',
+    syntax: 'const response = await fetch(url, { method, headers, body, signal });',
+    parameters: [
+      { name: 'url', type: 'string | URL', description: 'رابط واجهة برمجة التطبيقات (API Endpoint) المستهدف', descriptionEn: 'Target resource URL or endpoint string' },
+      { name: 'options', type: 'RequestInit (اختياري)', description: 'إعدادات الطلب: method (GET/POST), headers, body, timeout signal', descriptionEn: 'Configuration object: method, headers, payload body, AbortSignal' }
+    ],
+    returnValue: { type: 'Promise<Response>', description: 'وعد برمجياً يُحل بكائن الاستجابة Response لفحص الحالة واستخراج البيانات', descriptionEn: 'Promise resolving to Response object containing status, headers, and body methods' },
+    whatItDoes: 'إرسال واستقبال طلبات HTTP و REST APIs عبر الشبكة بشكل غير متزامن (Asynchronous) من المتصفح أو خادم Node.js.',
+    whatItDoesEn: 'Asynchronously fetches HTTP and REST resources across networks in modern browsers and Node.js runtimes.',
+    deepExplanation: 'تعتمد على معمارية Promises. لا ترفض الوعد (Reject) عند حدوث أخطاء HTTP كـ 404 أو 500؛ بل يجب دائماً فحص الخاصية response.ok للتأكد من نجاح الطلب، واستخدام AbortController لتحديد مهلة زمنية (Timeout) تمنع تعليق التطبيق.',
+    deepExplanationEn: 'Built on Promises. Fetch only rejects on network failures, not on HTTP 4xx/5xx errors; you must explicitly check response.ok and use AbortSignal for timeouts.',
+    codeExample: `// استدعاء API ومعرفة تفاصيل الشبكة مع مهلة زمنية 5 ثوانٍ
+async function getNetworkInfo() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const url = new URL("https://ipinfo.io/json");
+    const res = await fetch(url.toString(), {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+    if (!res.ok) throw new Error(\`HTTP Error: \${res.status}\`);
+    const data = await res.json();
+    return { ip: data.ip, city: data.city, org: data.org };
+  } catch (error) {
+    console.error("Network Fetch Failed:", error.message);
+    throw error;
+  }
+}`,
+    lineBreakdown: [
+      { line: 'const controller = new AbortController();', commentAr: 'إنشاء كائن للتحكم في إلغاء الطلب في حال تأخر الخادم عن الرد.', commentEn: 'Instantiates AbortController to cancel hanging requests.' },
+      { line: 'const timeoutId = setTimeout(() => controller.abort(), 5000);', commentAr: 'تحديد مهلة زمنية قصوى 5 ثوانٍ تفادياً لتعليق واجهة المستخدم.', commentEn: 'Sets a strict 5000ms timeout threshold.' },
+      { line: 'const res = await fetch(url.toString(), { ... signal: controller.signal });', commentAr: 'إرسال طلب HTTP GET مع ترويسة قبول JSON وربطه بإشارة الإلغاء.', commentEn: 'Dispatches HTTP request binding signal to timeout abort controller.' },
+      { line: 'if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);', commentAr: 'فحص حالة الاستجابة صراحةً للتأكد من عدم وجود خطأ 4xx أو 5xx.', commentEn: 'Explicitly validates HTTP response status code.' },
+      { line: 'const data = await res.json();', commentAr: 'تحويل نص الاستجابة إلى كائن جافاسكريبت نقي.', commentEn: 'Parses and returns the JSON payload body.' }
+    ],
+    securityTip: 'حدد دائماً مهلة زمنية (Timeout via AbortSignal) لأي استدعاء شبكي لتفادي هجمات حجب الخدمة الناتجة عن استهلاك المقابس المفتوحة (Socket Exhaustion).',
+    securityTipEn: 'Always attach an AbortSignal timeout to prevent socket exhaustion and application freeze.',
+    commonMistake: 'افتراض أن fetch يرمي خطأ عند إرجاع كود 404 أو 500؛ الدالة تعتبر ذلك استجابة ناجحة ويجب فحص res.ok يدوياً.',
+    commonMistakeEn: 'Assuming fetch throws on 404/500 HTTP errors; it only rejects on DNS or total network drops.'
+  },
+
+  // 12. PYTHON: requests.get()
+  {
+    id: 'py-fn-requests',
+    name: 'requests.get(url, params=None, headers=None, timeout=None)',
+    language: 'Python',
+    languageId: 'python',
+    category: 'network',
+    categoryLabel: 'الشبكات والـ APIs',
+    categoryLabelEn: 'Network & APIs',
+    syntax: 'response = requests.get(url, params=query_dict, headers=headers_dict, timeout=5)',
+    parameters: [
+      { name: 'url', type: 'str', description: 'رابط الـ API المراد استدعاؤه', descriptionEn: 'Target API endpoint URL' },
+      { name: 'params', type: 'dict (اختياري)', description: 'معاملات الاستعلام (Query Parameters) تدمج تلقائياً بالرابط بعد تشفيرها', descriptionEn: 'Dictionary of query parameters automatically URL-encoded' },
+      { name: 'headers', type: 'dict (اختياري)', description: 'ترويسات الطلب مثل التوثيق و User-Agent و Content-Type', descriptionEn: 'Custom HTTP request headers' },
+      { name: 'timeout', type: 'float / tuple', description: 'أقصى مدة للاتصال واستلام البيانات بالثواني', descriptionEn: 'Connection and read timeout in seconds' }
+    ],
+    returnValue: { type: 'requests.Response', description: 'كائن استجابة يحتوي على status_code و json() و text و headers', descriptionEn: 'Response object providing status code, parsed json(), headers, and raw text' },
+    whatItDoes: 'استدعاء روابط الويب وواجهات برمجة التطبيقات (APIs) في بايثون بسهولة فائقة وأمان عالي.',
+    whatItDoesEn: 'Sends an HTTP GET request to a specified URL, abstracting socket connection and query encoding.',
+    deepExplanation: 'تعتبر المكتبة الأكثر استخداماً في العالم لاستدعاء APIs في بايثون. تتولى تشفير المعاملات تلقائياً لمنع حقن الروابط (URL Injection)، وتحافظ على اتصالات Keep-Alive لتسريع الطلبات المتكررة.',
+    deepExplanationEn: 'The gold standard for HTTP in Python. Automatically handles connection pooling, URL escaping, and stream chunking.',
+    codeExample: `# كود جلب تفاصيل الـ IP وبناء الرابط مع المعاملات بأمان
+import requests
+
+def fetch_network_api(token=None):
+    url = "https://ipinfo.io/json"
+    params = {}
+    if token:
+        params["token"] = token
+
+    headers = {
+        "User-Agent": "CyberToolkit/2.0",
+        "Accept": "application/json"
+    }
+
+    try:
+        response = requests.get(url, params=params, headers=headers, timeout=(3.05, 10))
+        response.raise_for_status()  # يرمي استثناء إذا كان الكود 4xx أو 5xx
+        return response.json()
+    except requests.exceptions.RequestException as err:
+        print(f"Network API Error: {err}")
+        return None`,
+    lineBreakdown: [
+      { line: 'url = "https://ipinfo.io/json"', commentAr: 'تحديد مسار واجهة برمجة التطبيقات للشبكة.', commentEn: 'Specifies the base network API endpoint.' },
+      { line: 'params = {} ... if token: params["token"] = token', commentAr: 'بناء معالمات الرابط (Query Params) في قاموس لتتولى المكتبة تشفيرها بأمان.', commentEn: 'Assembles query parameters dict for automatic safe URL encoding.' },
+      { line: 'response = requests.get(..., timeout=(3.05, 10))', commentAr: 'تحديد مهلة 3.05 ثانية للاتصال و 10 ثوانٍ لقراءة البيانات لتفادي التعليق.', commentEn: 'Sets explicit connection and read timeouts.' },
+      { line: 'response.raise_for_status()', commentAr: 'التحقق التلقائي من كود الاستجابة ورمي خطأ فوري إذا فشل الخادم.', commentEn: 'Throws an HTTPError exception if response code indicates failure.' }
+    ],
+    securityTip: 'لا تستدعِ أبداً requests.get بدون معامل timeout صريح؛ فالافتراضي هو الانتظار اللانهائي مما قد يوقف تطبيقك بالكامل!',
+    securityTipEn: 'Never omit the timeout argument; requests defaults to waiting indefinitely if a server hangs.',
+    commonMistake: 'دمج معاملات الرابط يدوياً مثل url + "?key=" + key بدلاً من استخدام params={...}؛ مما يسبب ثغرات وتلف الروابط عند وجود رموز خاصة.',
+    commonMistakeEn: 'Concatenating URL strings manually instead of passing a dictionary to params.'
+  },
+
+  // 13. JAVASCRIPT: URL & URLSearchParams
+  {
+    id: 'js-fn-urlsearchparams',
+    name: 'new URLSearchParams([init])',
+    language: 'JavaScript',
+    languageId: 'javascript',
+    category: 'network',
+    categoryLabel: 'الشبكات والـ APIs',
+    categoryLabelEn: 'Network & APIs',
+    syntax: 'const params = new URLSearchParams({ search: "query", page: "1" });',
+    parameters: [
+      { name: 'init', type: 'object | string | array', description: 'كائن يحتوي على مفاتيح وقيم المعاملات المراد دمجها بالرابط', descriptionEn: 'Object, query string, or key-value pairs array' }
+    ],
+    returnValue: { type: 'URLSearchParams', description: 'كائن يتيح إضافة وقراءة وتشفير معاملات الروابط تلقائياً', descriptionEn: 'Instance providing get, set, append, and toString methods' },
+    whatItDoes: 'بناء روابط الـ APIs ومعاملاتها وتشفير النصوص الحساسة والفراغات والرموز العربية تلقائياً وفق معايير W3C.',
+    whatItDoesEn: 'Constructs, parses, and safely encodes URL query parameters preventing parameter injection.',
+    deepExplanation: 'تحل المشكلة الشائعة للأخطاء الأمنية في تكوين الروابط. تقوم الدالة بتطبيق Percent-Encoding لعلامات مثل المسافات، علامات & و =، والرموز الخاصة، مما يمنع ثغرات تلاعب المعاملات (Parameter Pollution).',
+    deepExplanationEn: 'Applies rigorous standard percent-encoding on all query keys and values, mitigating HTTP parameter pollution attacks.',
+    codeExample: `// دالة بناء رابط API آمن مع المعاملات
+function buildApiEndpoint(baseUrl, queryParams) {
+  const url = new URL(baseUrl);
+  const searchParams = new URLSearchParams(queryParams);
+  url.search = searchParams.toString();
+  return url.toString();
+}
+
+// تجربة البناء:
+const endpoint = buildApiEndpoint("https://api.example.com/search", {
+  q: "أمن سيبراني",
+  limit: 20,
+  filter: "active & verified"
+});
+console.log(endpoint);`,
+    lineBreakdown: [
+      { line: 'const url = new URL(baseUrl);', commentAr: 'إنشاء كائن URL للتحقق من صحة بروتوكول ونطاق الرابط.', commentEn: 'Parses base URL ensuring valid protocol and hostname.' },
+      { line: 'const searchParams = new URLSearchParams(queryParams);', commentAr: 'تمرير كائن المعاملات وتشفير الرموز الخاصة تلقائياً.', commentEn: 'Encodes query parameters safely handling special symbols and unicode.' },
+      { line: 'url.search = searchParams.toString();', commentAr: 'دمج المعاملات المشفرة مع الرابط الأصلي بعد علامة الاستفهام ?.', commentEn: 'Attaches formatted query string to base URL.' }
+    ],
+    securityTip: 'استخدم دائماً URLSearchParams لبناء الروابط بدلاً من الدمج النصي لتفادي ثغرات حقن المعاملات والمسارات.',
+    securityTipEn: 'Always use URLSearchParams over manual string concatenation to avoid query parameter manipulation.',
+    commonMistake: 'كتابة علامة ? يدوياً قبل searchParams.toString() عند استخدام url.search؛ كائن URL يضيف علامة الاستفهام تلقائياً.',
+    commonMistakeEn: 'Adding a manual question mark prefix when assigning to url.search.'
   }
 ];

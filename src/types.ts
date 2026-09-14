@@ -73,11 +73,23 @@ export interface SecurityVulnerabilityDefense {
   safetyAdvisory: string;
 }
 
+export type TermuxCategory = 
+  | 'package_manager'
+  | 'network_audit'
+  | 'file_security'
+  | 'python_termux'
+  | 'system_monitoring'
+  | 'termux_api'
+  | 'git_dev'
+  | 'nodejs_web'
+  | 'remote_ssh'
+  | 'hardware_sensor';
+
 export interface TermuxCommandItem {
   id: string;
   command: string;
   title: string;
-  category: 'package_manager' | 'network_audit' | 'file_security' | 'python_termux' | 'system_monitoring';
+  category: TermuxCategory | string;
   platformTarget: '📱 Termux (أندرويد)' | '💻 لينكس / سيرفر' | '📱💻 كلاهما';
   description: string;
   prerequisites?: string;
