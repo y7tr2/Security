@@ -1,0 +1,6 @@
+{
+  "name": "مرجع البرمجة والدفاع السيبراني",
+  "description": "منصة تعليمية شاملة للأمن السيبراني الدفاعي ومكتبة أكواد برمجية متعددة اللغات مع شروحات بايثون وأوامر الطرفية الآمنة والتحذيرات الأمنية",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
