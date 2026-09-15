@@ -241,10 +241,36 @@ How can I help you today? Ask me about anything!`,
           }
         }
       } catch (networkErr) {
-        console.warn('Backend API unavailable, using built-in Cyber Knowledge Engine', networkErr);
+        console.warn('Backend API unavailable, attempting client fallback or local engine', networkErr);
       }
 
-      // If no reply from server yet, query local Cyber Knowledge Engine with user's language
+      // If no reply from server and user entered a custom key (e.g. on static GitHub Pages), try client-side Gemini
+      if (!assistantReply && customKey.trim()) {
+        try {
+          const { GoogleGenAI } = await import('@google/genai');
+          const clientAi = new GoogleGenAI({ apiKey: customKey.trim() });
+          const candidateModels = ["gemini-3.6-flash", "gemini-3.8-flash"];
+          for (const m of candidateModels) {
+            try {
+              const res = await clientAi.models.generateContent({
+                model: m,
+                contents: textToSend,
+              });
+              if (res && res.text) {
+                assistantReply = res.text;
+                isFallbackMode = false;
+                break;
+              }
+            } catch (mErr) {
+              console.warn(`Model ${m} client attempt failed:`, mErr);
+            }
+          }
+        } catch (clientErr) {
+          console.warn('Client-side Gemini call failed:', clientErr);
+        }
+      }
+
+      // If no reply from server or client Gemini yet, query local Cyber Knowledge Engine with user's language
       if (!assistantReply) {
         assistantReply = queryCyberKnowledgeEngine(
           textToSend, 
